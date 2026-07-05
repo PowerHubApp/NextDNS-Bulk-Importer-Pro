@@ -23,7 +23,7 @@ jobs:
       - name: Extract UserScript header
         run: |
           SCRIPT_PATH="scripts/nextdns-importer.user.js"
-          META_PATH="scripts/nextdns-importer.update.user.js"
+          META_PATH="scripts/nextdns-importer.meta.user.js"
 
           sed -n '/\/\/ ==UserScript==/,/\/\/ ==\/UserScript==/p' "$SCRIPT_PATH" > "$META_PATH"
 
@@ -33,7 +33,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          git add "scripts/nextdns-importer.update.user.js"
+          git add "scripts/nextdns-importer.meta.user.js"
 
           if git diff --cached --quiet; then
             echo "No changes detected in the metadata block."

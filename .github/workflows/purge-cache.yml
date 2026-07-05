@@ -49,10 +49,11 @@ jobs:
             echo "should_purge=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Purge jsDelivr Cache
+      - name: Purge CDN Caches
         if: steps.git_commit.outputs.should_purge == 'true'
-        run: |
-          echo "Purging jsDelivr cache..."
-          curl -X POST -i -H "Cache-Control: no-cache" https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
-          curl -X POST -i -H "Cache-Control: no-cache" https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
+        uses: egad13/purge-jsdelivr-cache@v1
+        with:
+          url: |
+            https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
+            https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
 

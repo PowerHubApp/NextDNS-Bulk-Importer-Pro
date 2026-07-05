@@ -21,10 +21,11 @@ First, add a userscript manager extension to your web browser if you don't have 
 * **Userscripts/Stay** (iOS alternative)
 * **Firefox/Kiwi Browser** (Android alternative)
 
-## Add the Script
-* Navigate to the Script page at [GreasyFork](https://greasyfork.org/en/scripts/585661-nextdns-bulk-importer-pro) or [OpenUserJS](https://openuserjs.org/scripts/powerlimit/NextDNS_Bulk_Importer_Pro) and click Install.
+[![Greasy Fork](https://img.shields.io/badge/Greasy%20Fork-Install-orange?style=for-the-badge&logo=greasyfork)](https://greasyfork.org/en/scripts/585661-nextdns-bulk-importer-pro)
 
-* Open [This Link](https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js) and Import it to your Userscript Manager or copy and paste entire code into the editor.
+[![OpenUserJS](https://img.shields.io/badge/OpenUserJS-Install-blue?style=for-the-badge&logo=openuserjs&logoColor=white)](https://openuserjs.org/scripts/powerlimit/NextDNS_Bulk_Importer_Pro)
+
+[![Userscript](https://img.shields.io/badge/Userscript-Direct%20Install-green?style=for-the-badge&logo=javascript)](https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js)
 
 ## How to Use
 1. Go to your [NextDNS Dashboard](https://my.nextdns.io/).

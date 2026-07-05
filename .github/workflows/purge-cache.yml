@@ -1,9 +1,14 @@
-name: Purge jsDelivr Cache
+name: Purge Cache
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'scripts/nextdns-importer.user.js'
+
+permissions:
+  contents: write
 
 jobs:
   purge-cache:
@@ -17,8 +22,32 @@ jobs:
         with:
           node-version-file: ".node-version"
 
+      - name: Extract UserScript header
+        run: |
+          SCRIPT_PATH="scripts/nextdns-importer.user.js"
+          META_PATH="scripts/nextdns-importer.dev.user.js"
+
+          awk '/\/\/ ==UserScript==/,/\/\/ ==\/UserScript==/' "$SCRIPT_PATH" > "$META_PATH"
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          if git diff --quiet -- "scripts/nextdns-importer.update.user.js"; then
+            echo "No changes detected in the metadata block."
+            echo "SKIP_PURGE=true" >> $GITHUB_ENV
+          else
+            git add "scripts/nextdns-importer.update.user.js"
+            git commit -m "chore: automatically update userscript meta block [skip ci]"
+            git push
+            echo "SKIP_PURGE=false" >> $GITHUB_ENV
+          fi
+
       - name: Purge jsDelivr Cache
+        if: env.SKIP_PURGE != 'true'
         run: |
           echo "Purging jsDelivr cache..."
           curl -i https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
           curl -i https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
+

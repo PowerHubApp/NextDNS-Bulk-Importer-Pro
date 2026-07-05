@@ -44,11 +44,18 @@ jobs:
             echo "should_purge=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Purge CDN Caches
+      - name: Determine CDN URLs to Purge
+        id: purge_urls
         if: steps.git_commit.outputs.should_purge == 'true'
-        uses: egad13/purge-jsdelivr-cache@v1
-        with:
-          url: |
-            https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
-            https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
+        run: |
+          baseUrl="https://cdn.jsdelivr.net/gh/${{ github.repository }}@latest"
+          urls=""
+          for f in `find scripts -name "*.js" -type f`; do
+            urls+="${baseUrl}/${f},"
+          done
+          echo "urls=${urls%,*}" >> $GITHUB_OUTPUT
 
+      - name: jsDelivr Cache Purge
+        uses: kaycodes13/purge-jsdelivr-cache@v1.1.0
+        with:
+          url: ${{ steps.purge_urls.outputs.urls }}

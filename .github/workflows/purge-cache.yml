@@ -20,11 +20,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: ".node-version"
-
       - name: Extract UserScript header
         run: |
           SCRIPT_PATH="scripts/nextdns-importer.user.js"

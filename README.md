@@ -4,6 +4,16 @@ A simple, fast tool to easily add or remove multiple domains all at once.
 
 ---
 
+## 📸 Screenshots
+
+| | | |
+| :---: | :---: | :---: |
+| ![Screenshot 1](screenshots/1.png) | ![Screenshot 2](screenshots/2.png) | ![Screenshot 3](screenshots/3.png) |
+| ![Screenshot 4](screenshots/4.png) | ![Screenshot 5](screenshots/5.png) | |
+
+
+---
+
 ## Features
 * **Bulk Add & Remove:** Bulk Add/Remove: TLDs, Blocklists, Denylists, Allowlists and Rewrites.
 * **Hagezi’s AdBlock TLDs:** Supports Hagezi’s AdBlock TLDs. Select from the presets. NextDNS doesn’t support adding domains to TLDs, switch to denylist for that. *adding more soon*

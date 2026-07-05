@@ -11,43 +11,47 @@ permissions:
   contents: write
 
 jobs:
-  purge-cache:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".node-version"
 
       - name: Extract UserScript header
         run: |
           SCRIPT_PATH="scripts/nextdns-importer.user.js"
-          META_PATH="scripts/nextdns-importer.dev.user.js"
+          META_PATH="scripts/nextdns-importer.update.user.js"
 
-          awk '/\/\/ ==UserScript==/,/\/\/ ==\/UserScript==/' "$SCRIPT_PATH" > "$META_PATH"
+          sed -n '/\/\/ ==UserScript==/,/\/\/ ==\/UserScript==/p' "$SCRIPT_PATH" > "$META_PATH"
 
       - name: Commit and push changes
+        id: git_commit
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          if git diff --quiet -- "scripts/nextdns-importer.update.user.js"; then
+          git add "scripts/nextdns-importer.update.user.js"
+
+          if git diff --cached --quiet; then
             echo "No changes detected in the metadata block."
-            echo "SKIP_PURGE=true" >> $GITHUB_ENV
+            echo "should_purge=false" >> $GITHUB_OUTPUT
           else
-            git add "scripts/nextdns-importer.update.user.js"
             git commit -m "chore: automatically update userscript meta block [skip ci]"
             git push
-            echo "SKIP_PURGE=false" >> $GITHUB_ENV
+            echo "should_purge=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Purge jsDelivr Cache
-        if: env.SKIP_PURGE != 'true'
+        if: steps.git_commit.outputs.should_purge == 'true'
         run: |
           echo "Purging jsDelivr cache..."
           curl -i https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
           curl -i https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
-

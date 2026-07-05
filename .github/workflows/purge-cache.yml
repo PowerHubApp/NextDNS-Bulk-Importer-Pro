@@ -17,9 +17,8 @@ jobs:
         with:
           node-version-file: ".node-version"
 
-      - name: Purge jsDelivr CDN
-        uses: gacts/purge-jsdelivr-cache@v1
-        with:
-          url: |
-            https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/
-          attempts: 3
+      - name: Purge jsDelivr Cache
+        run: |
+          echo "Purging jsDelivr cache..."
+          curl -i https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
+          curl -i https://purge.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js

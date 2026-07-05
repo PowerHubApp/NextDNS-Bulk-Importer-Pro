@@ -9,7 +9,7 @@
 // @updateURL    https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
 // @supportURL   https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
 // @license      MIT
-// @antifeature membership This script requires a NextDNS account for full functionality.
+// @antifeature membership This script requires a NextDNS account for full functionality and support.
 // @match        https://my.nextdns.io/*
 // @grant        GM_xmlhttpRequest
 // @connect      api.nextdns.io

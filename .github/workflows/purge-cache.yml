@@ -9,6 +9,14 @@ jobs:
   purge-cache:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".node"
+
       - name: Purge jsDelivr CDN
         uses: gacts/purge-jsdelivr-cache@v1
         with:

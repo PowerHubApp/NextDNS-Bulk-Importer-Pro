@@ -8,6 +8,7 @@
 // @downloadURL  https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
 // @updateURL    https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.update.user.js
 // @supportURL   https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
+// @license      MIT
 // @match        https://my.nextdns.io/*
 // @grant        GM_xmlhttpRequest
 // @connect      api.nextdns.io

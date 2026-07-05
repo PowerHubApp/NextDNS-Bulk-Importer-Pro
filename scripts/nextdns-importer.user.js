@@ -203,7 +203,7 @@
             </div>
 
             <div class="pnl-header">
-                <h3>API Bulk Importer</h3>
+                <h3>NextDNS Bulk Importer Pro</h3>
                 <button id="ndns-imp-refresh" title="Refresh data">↻</button>
             </div>
             

@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         NextDNS Bulk Importer Pro
 // @namespace    https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
-// @version      1.13
+// @version      1.14
 // @description  Bulk import automation tool designed for advanced NextDNS users. Easily manage TLDs, blocklists, denylists, allowlists, and rewrites with a responsive, clean interface.
 // @author       PowerHub
-// @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC05NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE5LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC04LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjUtMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcwIDExOC42IDY1LjYgMTg0LjMgODEuMSA1LjUgMS41IDExLjQgMS44IDE2LjcgNC4xIDQuNiAyLjUgNC44IDcuNyA1IDEyLjRsLjUgNi44di0uMWMuOSAxMyAuOSAyNi4zLS40IDM5LjNNVDcyMi41IDM1OGMtNzQuOS0xNi4zLTE0NS45LTQ5LjItMjA4LjctOTIuOS0xNS42IDExLjUtMzIuMyAyMS40LTQ5LjEgMzEtNTEuMiAyOC42LTEwNi4yIDUxLjItMTYzLjcgNjMuNi00LjcgODguNiAxOS4zIDE3OC40IDY2LjkgMjUzLjIgMzcgNTguNCA4Ni4zIDEwOC45IDE0My43IDE0Ny4zQzU4NiA3MTEuOCA2NDcgNjQyLjUgNjgzLjkgNTYxLjdjMjkuMS02My41IDQxLjktMTM0LjEgMzguNi0yMDMuNyIgc3R5bGU9ImZpbGw6I2ZmZiIvPgo8L3N2Zz4K
+// @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC05NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE9LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC08LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjUtMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcwIDExOC42IDY1LjYgMTg0LjMgODEuMSA1LjUgMS41IDExLjQgMS44IDE2LjcgNC4xIDQuNiAyLjUgNC44IDcuNyA1IDEyLjRsLjUgNi44di0uMWMuOSAxMyAuOSAyNi4zLS40IDM5LjNNVDcyMi41IDM1OGMtNzQuOS0xNi4zLTE0NS45LTQ5LjItMjA4LjctOTIuOS0xNS42IDExLjUtMzIuMyAyMS40LTQ5LjEgMzEtNTEuMiAyOC42LTEwNi4yIDUxLjItMTYzLjcgNjMuNi00LjcgODguNiAxOS4zIDE3OC40IDY2LjkgMjUzLjIgMzcwIDU4LjQgODYuMyAxMDguOSAxNDMuNyAxNDcuM0M1ODYgNzExLjggNjQ3IDY0Mi41IDY4My45IDU2MS43YzI5LjEtNjMuNSA0MS45LTEzNC4xIDM4LjYtMjAzLjciIHN0eWxlPSJmaWxsOiNmZmYiLz4KPC9zdmc+
 // @updateURL    https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.meta.user.js
 // @downloadURL  https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
 // @supportURL   https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
@@ -42,25 +42,25 @@
 
     const styles = `
         #ndns-imp-btn {
-            position: fixed; bottom: 24px; right: 24px; z-index: 10001;
+            position: fixed; bottom: 24px; right: 24px; z-index: 2147483647;
             background: #0070f3; color: #fff; border: 1px solid #0070f3;
             width: 44px; height: 44px; padding: 0; border-radius: 50%;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            cursor: move; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 14px rgba(0, 112, 243, 0.3); transition: transform 0.15s ease, background 0.15s ease;
-            user-select: none;
+            user-select: none; touch-action: none;
         }
         #ndns-imp-btn:hover { background: #1a80f5; border-color: #1a80f5; transform: scale(1.05); }
         #ndns-imp-btn:active { transform: scale(0.95); }
         #ndns-imp-btn svg { width: 22px; height: 22px; fill: currentColor; pointer-events: none; }
         
         #ndns-imp-pnl {
-            position: fixed; bottom: 84px; right: 24px; z-index: 9999;
+            position: fixed; bottom: 84px; right: 24px; z-index: 2147483646;
             border-radius: 12px; padding: 24px 20px 20px 20px; 
             width: calc(100% - 48px); max-width: 380px; box-sizing: border-box;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15); font-family: inherit;
             display: none; border: 1px solid transparent;
             max-height: calc(100vh - 140px); overflow-y: auto;
-            transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), top 0.25s, left 0.25s, bottom 0.25s, right 0.25s;
+            transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         #ndns-imp-pnl.mac-fullscreen {
@@ -70,7 +70,7 @@
             height: 100% !important;
             top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
             border-radius: 0px !important;
-            z-index: 10002;
+            z-index: 2147483647;
         }
         #ndns-imp-pnl.mac-fullscreen textarea { height: 160px !important; }
         #ndns-imp-pnl.mac-fullscreen .bl-checkbox-list {
@@ -177,7 +177,7 @@
 
     const floatingBtn = document.createElement("button");
     floatingBtn.id = "ndns-imp-btn";
-    floatingBtn.title = "NextDNS Bulk Importer Pro v1.12";
+    floatingBtn.title = "NextDNS Bulk Importer Pro v1.14";
     floatingBtn.innerHTML = `
        <svg viewBox="0 0 24 24">
            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM11 7h2v2h-2V7zm0 4h2v6h-2v-6z"/>
@@ -554,13 +554,74 @@
         }
     });
 
+    let isDragging = false;
+    let dragDistanceMoved = 0;
+    let startX, startY, startLeft, startTop;
+
+    floatingBtn.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        
+        isDragging = true;
+        dragDistanceMoved = 0;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = floatingBtn.getBoundingClientRect();
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        floatingBtn.style.bottom = "auto";
+        floatingBtn.style.right = "auto";
+        floatingBtn.style.left = startLeft + "px";
+        floatingBtn.style.top = startTop + "px";
+        
+        floatingBtn.setPointerCapture(e.pointerId);
+        e.preventDefault();
+    });
+
+    floatingBtn.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        dragDistanceMoved += Math.abs(deltaX) + Math.abs(deltaY);
+        
+        floatingBtn.style.left = (startLeft + deltaX) + "px";
+        floatingBtn.style.top = (startTop + deltaY) + "px";
+    });
+
+    floatingBtn.addEventListener("pointerup", (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        floatingBtn.releasePointerCapture(e.pointerId);
+        
+        if (dragDistanceMoved < 6) {
+            themeSync();
+            pnl.style.display = pnl.style.display === "block" ? "none" : "block";
+        }
+    });
+
+    floatingBtn.addEventListener("pointercancel", (e) => {
+        isDragging = false;
+        try { floatingBtn.releasePointerCapture(e.pointerId); } catch(_) {}
+    });
+
     floatingBtn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        themeSync();
-        pnl.style.display = pnl.style.display === "block" ? "none" : "block";
+        e.preventDefault();
+        e.stopPropagation();
     });
     
-    pnl.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+    document.addEventListener("pointerdown", (e) => {
+        if (pnl.style.display === "block") {
+            const clickedInsidePanel = pnl.contains(e.target);
+            const clickedButton = floatingBtn.contains(e.target) || e.target === floatingBtn;
+            
+            if (!clickedInsidePanel && !clickedButton) {
+                pnl.style.display = "none";
+            }
+        }
+    });
+
+    pnl.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
 
     document.getElementById("mac-ctrl-close").addEventListener("click", (e) => {
         e.preventDefault(); e.stopPropagation();
@@ -1019,7 +1080,7 @@
             }
             
             if (!globalRateLimitLock) {
-                setStatusText(`Queue: (${i + 1}/${queue.length})\nProcessing [ .${label.substring(0, 22)} ]\n${isRemoveMode ? 'Removed' : 'Imported'}: ${processedCounter} Skipped: ${skipped} Failed: ${failed}`);
+                setStatusText("Queue: (" + (i + 1) + "/" + queue.length + ")\nProcessing [ ." + label.substring(0, 22) + " ]\n" + (isRemoveMode ? 'Removed' : 'Imported') + ": " + processedCounter + " Skipped: " + skipped + " Failed: " + failed);
             }
             
             try { 

@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         NextDNS Bulk Importer Pro
 // @namespace    https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
-// @version      1.12
+// @version      1.13
 // @description  Bulk import automation tool designed for advanced NextDNS users. Easily manage TLDs, blocklists, denylists, allowlists, and rewrites with a responsive, clean interface.
 // @author       PowerHub
-// @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC01NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE5LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC04LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjItMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcgMTE4LjYgNjUuNiAxODQuMyA4MS4xIDUuNSAxLjUgMTEuNCAxLjggMTYuNyA0LjEgNC42IDIuNSA0LjggNy43IDUgMTIuNGwuNSA2Ljh2LS4xYy45IDEzIC45IDI2LjMtLjQgMzkuM01UNzIyLjUgMzU4Yy03NC45LTE2LjMtMTQ1LjktNDkuMi0yMDguNy05Mi45LTE1LjYgMTEuNS0zMi4zIDIxLjQtNDkuMSAzMS01MS4yIDI4LjYtMTA2LjIgNTEuMi0xNjMuNyA2My42LTQuNyA4OC42IDE5LjMgMTc4LjQgNjYuOSAyNTMuMiAzNyA1OC40IDg2LjMgMTA4LjkgMTQzLjcgMTQ3LjNDNTg2IDcxMS44IDY0NyA2NDIuNSA2ODMuOSA1NjEuN2MyOS4xLTYzLjUgNDEuOS0xMzQuMSAzOC42LTIwMy43IiBzdHlsZT0iZmlsbDojZmZmIi8+Cjwvc3ZnPgo=
+// @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC05NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE5LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC04LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjUtMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcwIDExOC42IDY1LjYgMTg0LjMgODEuMSA1LjUgMS41IDExLjQgMS44IDE2LjcgNC4xIDQuNiAyLjUgNC44IDcuNyA1IDEyLjRsLjUgNi44di0uMWMuOSAxMyAuOSAyNi4zLS40IDM5LjNNVDcyMi41IDM1OGMtNzQuOS0xNi4zLTE0NS45LTQ5LjItMjA4LjctOTIuOS0xNS42IDExLjUtMzIuMyAyMS40LTQ5LjEgMzEtNTEuMiAyOC42LTEwNi4yIDUxLjItMTYzLjcgNjMuNi00LjcgODguNiAxOS4zIDE3OC40IDY2LjkgMjUzLjIgMzcgNTguNCA4Ni4zIDEwOC45IDE0My43IDE0Ny4zQzU4NiA3MTEuOCA2NDcgNjQyLjUgNjgzLjkgNTYxLjdjMjkuMS02My41IDQxLjktMTM0LjEgMzguNi0yMDMuNyIgc3R5bGU9ImZpbGw6I2ZmZiIvPgo8L3N2Zz4K
 // @updateURL    https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.meta.user.js
 // @downloadURL  https://cdn.jsdelivr.net/gh/PowerHubApp/NextDNS-Bulk-Importer-Pro@latest/scripts/nextdns-importer.user.js
 // @supportURL   https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
@@ -26,14 +26,13 @@
     let isAborted = false;
     let isImporting = false;
     let importLogs = [];
-    const CONCURRENCY_LIMIT = 2; 
     let globalRateLimitLock = false;
     let cachedAvailableBlocklists = []; 
 
     const RULES = {
         denylist: new RegExp(`^(\\*\\.)?${DOM_RE}$|^\\|\\|${DOM_RE}\\^$`, 'i'),
         allowlist: new RegExp(`^(\\*\\.)?${DOM_RE}$|^@@\\|\\|${DOM_RE}\\^$`, 'i'),
-        tld: new RegExp(`^\\.?[a-z0-9\\-]+$|^\\ *\\.[a-z0-9\\-]+$|^\\|\\|[a-z0-9\\-]+\\^$`, 'i'),
+        tld: /^\.?[a-z0-9\-]+$|^\ *\.?[a-z0-9\-]+$|^\|\|[a-z0-9\-]+\^$/i,
         rewrites: {
             domIp: new RegExp(`^(\\*\\.)?(${DOM_RE})\\s+(${IP_RE})$`, 'i'),
             ipDom: new RegExp(`^(${IP_RE})\\s+(\\*|\\*\\.)?(${DOM_RE})$`, 'i'),
@@ -178,7 +177,7 @@
 
     const floatingBtn = document.createElement("button");
     floatingBtn.id = "ndns-imp-btn";
-    floatingBtn.title = "NextDNS Bulk Importer Pro v1.0";
+    floatingBtn.title = "NextDNS Bulk Importer Pro v1.12";
     floatingBtn.innerHTML = `
        <svg viewBox="0 0 24 24">
            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM11 7h2v2h-2V7zm0 4h2v6h-2v-6z"/>
@@ -320,17 +319,27 @@
     const stAl = document.getElementById("st-al");
     const stRw = document.getElementById("st-rw");
 
+    const impGrid = pnl.querySelector(".imp-grid");
+    const formInputs = pnl.querySelectorAll("select, input, textarea, .file-lbl, .bl-checkbox-list");
+    const formLabels = pnl.querySelectorAll(".imp-fld-lbl, .imp-lbl, #imp-status");
+    const copyButtons = pnl.querySelectorAll(".mini-copy-btn");
+
     let isDarkTheme = false;
     let isSyncingTokens = false; 
+    function getOrdinalAttemptText(count) {
+        const ordinals = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+        return ordinals[count - 1] || `${count}th`;
+    }
 
     function syncCheckboxesToTextarea() {
         if (isSyncingTokens || typeSel.value !== 'blocklists') return;
         isSyncingTokens = true;
 
         const checkedIds = [];
-        blWrap.querySelectorAll("input[type='checkbox']:checked").forEach(cb => {
-            checkedIds.push(cb.value);
-        });
+        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+        for (let i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) checkedIds.push(checkboxes[i].value);
+        }
 
         txtInput.value = checkedIds.join('\n');
         isSyncingTokens = false;
@@ -344,9 +353,10 @@
             txtInput.value.split('\n').map(r => r.trim().toLowerCase()).filter(Boolean)
         );
 
-        blWrap.querySelectorAll("input[type='checkbox']").forEach(cb => {
-            cb.checked = currentTokens.has(cb.value.toLowerCase());
-        });
+        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = currentTokens.has(checkboxes[i].value.toLowerCase());
+        }
 
         isSyncingTokens = false;
     }
@@ -378,19 +388,23 @@
 
         if (data) {
             cachedAvailableBlocklists = data;
-            blWrap.innerHTML = '';
-            cachedAvailableBlocklists.forEach(bl => {
-                blWrap.insertAdjacentHTML('beforeend', `
+            
+            let htmlBuffer = '';
+            for (let i = 0; i < cachedAvailableBlocklists.length; i++) {
+                const bl = cachedAvailableBlocklists[i];
+                htmlBuffer += `
                     <label class="bl-item" title="${bl.name || bl.id}">
                         <input type="checkbox" value="${bl.id}">
                         <span>${bl.name || bl.id}</span>
                     </label>
-                `);
-            });
+                `;
+            }
+            blWrap.innerHTML = htmlBuffer;
 
-            blWrap.querySelectorAll("input[type='checkbox']").forEach(cb => {
-                cb.addEventListener('change', syncCheckboxesToTextarea);
-            });
+            const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+            for (let i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].addEventListener('change', syncCheckboxesToTextarea);
+            }
 
             syncTextareaToCheckboxes();
             themeSync();
@@ -400,50 +414,56 @@
     }
 
     document.getElementById("bl-master-all").addEventListener("click", () => {
-        blWrap.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = true);
+        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+        for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = true;
         syncCheckboxesToTextarea();
     });
     document.getElementById("bl-master-none").addEventListener("click", () => {
-        blWrap.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = false);
+        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+        for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = false;
         syncCheckboxesToTextarea();
     });
 
     function themeSync() {
-        isDarkTheme = window.getComputedStyle(document.body).color.match(/\d+/g)?.map(Number)[0] > 140;
-        const grid = pnl.querySelector(".imp-grid");
-        const inputs = pnl.querySelectorAll("select, input, textarea, .file-lbl, .bl-checkbox-list");
-        const labels = pnl.querySelectorAll(".imp-fld-lbl, .imp-lbl, #imp-status");
-        const copyBtns = pnl.querySelectorAll(".mini-copy-btn");
+        const firstMatch = window.getComputedStyle(document.body).color.match(/\d+/);
+        isDarkTheme = firstMatch && parseInt(firstMatch[0], 10) > 140;
 
         pnl.style.background = isDarkTheme ? "#1c1e22" : "#ffffff";
         pnl.style.color = isDarkTheme ? "#ffffff" : "#111111";
         pnl.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
-        grid.style.background = isDarkTheme ? "#131517" : "#fafafa";
-        grid.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
+        impGrid.style.background = isDarkTheme ? "#131517" : "#fafafa";
+        impGrid.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
 
-        inputs.forEach(el => {
-            el.style.background = isDarkTheme ? "#131517" : "#ffffff";
-            el.style.color = isDarkTheme ? "#ffffff" : "#111111";
-            el.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
-        });
+        const inputBg = isDarkTheme ? "#131517" : "#ffffff";
+        const inputColor = isDarkTheme ? "#ffffff" : "#111111";
+        const inputBorder = isDarkTheme ? "#2f343c" : "#eaeaea";
+        for (let i = 0; i < formInputs.length; i++) {
+            const el = formInputs[i];
+            el.style.background = inputBg;
+            el.style.color = inputColor;
+            el.style.borderColor = inputBorder;
+        }
         
-        labels.forEach(el => {
+        const labelColor = isDarkTheme ? "#8892b0" : "#666666";
+        for (let i = 0; i < formLabels.length; i++) {
+            const el = formLabels[i];
             if (el.id !== "imp-status") {
-                el.style.color = isDarkTheme ? "#8892b0" : "#666666";
+                el.style.color = labelColor;
             }
-        });
+        }
 
-        copyBtns.forEach(btn => {
-            btn.style.color = isDarkTheme ? "#8892b0" : "#666666";
-        });
+        for (let i = 0; i < copyButtons.length; i++) {
+            copyButtons[i].style.color = labelColor;
+        }
 
         if (status.children.length === 0) {
-            if (status.innerText === "Ready") {
+            const txt = status.innerText;
+            if (txt === "Ready") {
                 status.style.color = "#42b983";
-            } else if (status.innerText === "Operation Cancelled" || status.innerText.startsWith("Error")) {
+            } else if (txt === "Operation Cancelled" || txt.startsWith("Error")) {
                 status.style.color = "#ff6b6b";
             } else {
-                status.style.color = isDarkTheme ? "#8892b0" : "#666666";
+                status.style.color = labelColor;
             }
         }
 
@@ -454,12 +474,12 @@
         } else {
             closeBtn.style.background = "transparent";
             closeBtn.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
-            closeBtn.style.color = isDarkTheme ? "#666666" : "#666666";
+            closeBtn.style.color = "#666666";
         }
 
-        refreshBtn.style.color = isDarkTheme ? "#8892b0" : "#666666";
+        refreshBtn.style.color = labelColor;
         logToggleBtn.style.borderColor = isDarkTheme ? "#3a3f47" : "#eaeaea";
-        logToggleBtn.style.color = isDarkTheme ? "#8892b0" : "#666666";
+        logToggleBtn.style.color = labelColor;
         logDisplayArea.style.background = isDarkTheme ? "#131517" : "#fafafa";
         logDisplayArea.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
         logDisplayArea.style.color = isDarkTheme ? "#a2aabf" : "#444444";
@@ -483,11 +503,10 @@
     function renderSegmentedSummary(processed, skipped, failed, isRemoveMode = false) {
         const neutralColor = isDarkTheme ? "#8892b0" : "#666666";
         const finalActionColor = processed === 0 ? neutralColor : (isRemoveMode ? "#ff6b6b" : "#42b983");
-        const finalSkipColor = neutralColor;
         const finalFailColor = failed === 0 ? neutralColor : "#ff6b6b";
 
         status.style.color = "inherit"; 
-        status.innerHTML = `<span style="color: ${finalActionColor};">${isRemoveMode ? 'Removed' : 'Imported'}: ${processed}</span>  <span style="color: ${finalSkipColor};">Skipped: ${skipped}</span>  <span style="color: ${finalFailColor};">Failed: ${failed}</span>`;
+        status.innerHTML = `<span style="color: ${finalActionColor};">${isRemoveMode ? 'Removed' : 'Imported'}: ${processed}</span>  <span style="color: ${neutralColor};">Skipped: ${skipped}</span>  <span style="color: ${finalFailColor};">Failed: ${failed}</span>`;
     }
 
     const hints = {
@@ -509,19 +528,14 @@
         blWrap.style.display = isBlocklists ? "grid" : "none";
         blCtrlRow.style.display = isBlocklists ? "flex" : "none";
 
-        if (isBlocklists) {
-            document.getElementById("src-url-lbl").style.display = "none";
-            urlInput.style.display = "none";
-            document.getElementById("src-file-lbl").style.display = "none";
-            document.getElementById("src-file-wrap").style.display = "none";
-            srcWrap.style.display = "block"; 
-        } else {
-            document.getElementById("src-url-lbl").style.display = "flex";
-            urlInput.style.display = "block";
-            document.getElementById("src-file-lbl").style.display = "flex";
-            document.getElementById("src-file-wrap").style.display = "block";
-            srcWrap.style.display = "block";
-        }
+        const isBlocklistDisplay = isBlocklists ? "none" : "flex";
+        const isBlocklistBlock = isBlocklists ? "none" : "block";
+
+        document.getElementById("src-url-lbl").style.display = isBlocklistDisplay;
+        urlInput.style.display = isBlocklistBlock;
+        document.getElementById("src-file-lbl").style.display = isBlocklistDisplay;
+        document.getElementById("src-file-wrap").style.display = isBlocklistBlock;
+        srcWrap.style.display = "block"; 
         
         processStartBtn.innerText = modeActionSel.value === "remove" ? "Bulk Remove" : "Bulk Add";
     }
@@ -664,7 +678,8 @@
         const targets = { tlds: 'security/tlds', blocklists: 'privacy/blocklists', denylist: 'denylist', allowlist: 'allowlist', rewrites: 'rewrites' };
         const boxes = { tlds: stTlds, blocklists: stBl, denylist: stDl, allowlist: stAl, rewrites: stRw };
 
-        Object.values(boxes).forEach(el => el.innerText = "...");
+        stTlds.innerText = "..."; stBl.innerText = "..."; stDl.innerText = "..."; stAl.innerText = "..."; stRw.innerText = "...";
+        
         for (const [k, endpoint] of Object.entries(targets)) {
             try {
                 const res = await fetch(`https://api.nextdns.io/profiles/${profId}/${endpoint}`, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
@@ -688,12 +703,13 @@
             if (json?.data) {
                 profSel.innerHTML = '';
                 const activeId = window.location.pathname.split('/')[1] || '';
-                json.data.forEach(p => {
+                for (let i = 0; i < json.data.length; i++) {
+                    const p = json.data[i];
                     const el = document.createElement('option');
                     el.value = p.id; el.innerText = `${p.name || 'Unnamed'} (${p.id})`;
                     if (p.id === activeId) el.selected = true;
                     profSel.appendChild(el);
-                });
+                }
                 setStatusReady();
                 uiToggle();
                 fetchStats(profSel.value);
@@ -723,8 +739,7 @@
             });
         });
     }
-
-    async function sendRequest(url, method, payload) {
+    async function sendRequest(url, method, payload, attemptCount = 1) {
         if (isAborted) return;
         
         while (globalRateLimitLock) {
@@ -740,7 +755,7 @@
 
         if (res.status === 429) {
             if (globalRateLimitLock) {
-                return await sendRequest(url, method, payload);
+                return await sendRequest(url, method, payload, attemptCount);
             }
             
             globalRateLimitLock = true;
@@ -755,25 +770,31 @@
                     return;
                 }
                 let remainingSecs = Math.max(1, Math.ceil((targetEndTime - Date.now()) / 1000));
-                setStatusText(`⚠️ Rate limited!\nPausing workers for ${remainingSecs}s...`);
+                setStatusText(`⚠️ Rate limited!\nPausing for ${remainingSecs}s...`);
                 await new Promise(r => setTimeout(r, 250));
             }
             
             globalRateLimitLock = false;
-            return await sendRequest(url, method, payload);
+            attemptCount++;
+            const retryLabel = getOrdinalAttemptText(attemptCount);
+            setStatusText(`trying again ${retryLabel} time.`);
+            await new Promise(r => setTimeout(r, 250));
+
+            return await sendRequest(url, method, payload, attemptCount);
         }
         if (!res.ok) throw new Error();
     }
 
     function runStrictParser(text, type) {
-        const lines = text.split('\n').map(l => l.trim());
+        const lines = text.split('\n');
         let valid = [];
         let failedValidationCount = 0;
 
         if (type === 'blocklists') {
             const officialSet = new Set(cachedAvailableBlocklists.map(b => b.id.toLowerCase()));
-            for (let line of lines) {
-                if (!line || line.startsWith('#') || line.startsWith('!')) continue;
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (!line || line[0] === '#' || line[0] === '!') continue;
                 let idToken = line.toLowerCase();
                 if (officialSet.size === 0 || officialSet.has(idToken)) {
                     valid.push({ raw: line, id: idToken });
@@ -785,14 +806,14 @@
             return { valid, failedValidationCount };
         }
 
-        for (let line of lines) {
-            if (!line) continue;
-            if (line.startsWith('#') || line.startsWith('!') || line.startsWith('//') || (line.startsWith('[') && line.endsWith(']'))) continue;
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line || line[0] === '#' || line[0] === '!' || line.startsWith('//') || (line[0] === '[' && line[line.length - 1] === ']')) continue;
 
             if (type === 'denylist' || type === 'allowlist' || type === 'tld') {
                 if (RULES[type].test(line)) {
                     let token = line.replace(/^@@\|\||^\|\||^@@|^\*\\\.|\*\./i, '').replace(/\^$/, '').toLowerCase();
-                    if (type === 'tld' && token.startsWith('.')) token = token.substring(1);
+                    if (type === 'tld' && token[0] === '.') token = token.substring(1);
                     valid.push({ raw: line, id: token });
                 } else {
                     failedValidationCount++;
@@ -854,9 +875,10 @@
 
         if (isBlocklists) {
             let selectedBls = [];
-            pnl.querySelectorAll("#bl-wrap input[type='checkbox']:checked").forEach(cb => {
-                selectedBls.push(cb.value);
-            });
+            const checkedBoxes = pnl.querySelectorAll("#bl-wrap input[type='checkbox']:checked");
+            for(let i=0; i<checkedBoxes.length; i++) {
+                selectedBls.push(checkedBoxes[i].value);
+            }
             let textRows = txtInput.value.split('\n').map(r => r.trim()).filter(Boolean);
             let unified = Array.from(new Set([...selectedBls, ...textRows]));
             txtInput.value = unified.join('\n');
@@ -874,13 +896,14 @@
             }
         }
 
-        if (!isBlocklists && urlInput.value.trim() !== "") {
+        const cleanUrl = urlInput.value.trim();
+        if (!isBlocklists && cleanUrl !== "") {
             try {
                 setStatusText("Downloading Remote URL stream...");
-                let urlData = await fetchListUrl(urlInput.value.trim());
+                let urlData = await fetchListUrl(cleanUrl);
                 combinedContentPieces.push(urlData);
             } catch {
-                importLogs.push(`[ERROR] Failed to download URL stream: ${urlInput.value.trim()}`);
+                importLogs.push(`[ERROR] Failed to download URL stream: ${cleanUrl}`);
             }
         }
 
@@ -922,7 +945,8 @@
 
         let deduplicatedValid = [];
         let seenKeys = new Set();
-        for (let item of valid) {
+        for (let i = 0; i < valid.length; i++) {
+            let item = valid[i];
             let itemKey = type === 'rewrites' ? `${item.domain}:::${item.ip}` : item.id;
             if (!seenKeys.has(itemKey)) {
                 seenKeys.add(itemKey);
@@ -945,13 +969,15 @@
         setStatusText("Synchronizing data maps...");
         const rawCache = await getExisting(profId, type);
         const cacheMap = new Map();
-        rawCache.forEach(item => {
+        for (let i = 0; i < rawCache.length; i++) {
+            let item = rawCache[i];
             let key = type === 'rewrites' ? item.name.toLowerCase().trim() : item.id.toLowerCase().trim();
             cacheMap.set(key, item.id);
-        });
+        }
         
         let queue = [];
-        for (let item of deduplicatedValid) {
+        for (let i = 0; i < deduplicatedValid.length; i++) {
+            let item = deduplicatedValid[i];
             let lookupKey = type === 'rewrites' ? item.domain : item.id;
             const exists = cacheMap.has(lookupKey);
             
@@ -975,47 +1001,42 @@
         }
 
         let endpointBase = `https://api.nextdns.io/profiles/${profId}/${type === 'tld' ? 'security/tlds' : (type === 'blocklists' ? 'privacy/blocklists' : type)}`;
-        let currentIndex = 0;
 
-        async function worker() {
-            while (currentIndex < queue.length && !isAborted) {
-                let i = currentIndex++;
-                if (i >= queue.length) break;
+        for (let i = 0; i < queue.length; i++) {
+            if (isAborted) break;
 
-                let item = queue[i];
-                let label = type === 'rewrites' ? item.domain : item.id;
-                let targetUrl = endpointBase;
-                let method = "POST";
-                let payload = null;
+            let item = queue[i];
+            let label = type === 'rewrites' ? item.domain : item.id;
+            let targetUrl = endpointBase;
+            let method = "POST";
+            let payload = null;
 
-                if (isRemoveMode) {
-                    method = "DELETE";
-                    targetUrl = `${endpointBase}/${encodeURIComponent(item.cloudId || item.id)}`;
-                } else {
-                    payload = type === 'rewrites' ? { name: item.domain, content: item.ip } : { id: item.id };
+            if (isRemoveMode) {
+                method = "DELETE";
+                targetUrl = `${endpointBase}/${encodeURIComponent(item.cloudId || item.id)}`;
+            } else {
+                payload = type === 'rewrites' ? { name: item.domain, content: item.ip } : { id: item.id };
+            }
+            
+            if (!globalRateLimitLock) {
+                setStatusText(`Queue: (${i + 1}/${queue.length})\nProcessing [ .${label.substring(0, 22)} ]\n${isRemoveMode ? 'Removed' : 'Imported'}: ${processedCounter} Skipped: ${skipped} Failed: ${failed}`);
+            }
+            
+            try { 
+                await sendRequest(targetUrl, method, payload); 
+                if (!isAborted) {
+                    processedCounter++;
+                    importLogs.push(`[${isRemoveMode ? 'REMOVED' : 'IMPORTED'}] ${label}`);
                 }
-                
-                if (!globalRateLimitLock) {
-                    setStatusText(`Queue: (${i + 1}/${queue.length})\nProcessing [ .${label.substring(0, 22)} ]\n${isRemoveMode ? 'Removed' : 'Imported'}: ${processedCounter} Skipped: ${skipped} Failed: ${failed}`);
-                }
-                
-                try { 
-                    await sendRequest(targetUrl, method, payload); 
-                    if (!isAborted) {
-                        processedCounter++;
-                        importLogs.push(`[${isRemoveMode ? 'REMOVED' : 'IMPORTED'}] ${label}`);
-                    }
-                } catch { 
-                    failed++; 
-                    importLogs.push(`[FAILED (API ERROR)] ${label}`);
-                }
-                
-                if (!isAborted) await new Promise(r => setTimeout(r, 200)); 
+            } catch { 
+                failed++; 
+                importLogs.push(`[FAILED (API ERROR)] ${label}`);
+            }
+            
+            if (!isAborted && i < queue.length - 1) {
+                await new Promise(r => setTimeout(r, 200));
             }
         }
-
-        const workers = Array.from({ length: Math.min(CONCURRENCY_LIMIT, queue.length) }, worker);
-        await Promise.all(workers);
 
         isImporting = false;
         if (isAborted) {
@@ -1025,7 +1046,8 @@
             renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
             txtInput.value = ""; urlInput.value = ""; fileInput.value = "";
             flLbl.innerText = "select file"; 
-            pnl.querySelectorAll("#bl-wrap input[type='checkbox']").forEach(cb => cb.checked = false);
+            const checkboxes = pnl.querySelectorAll("#bl-wrap input[type='checkbox']");
+            for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = false;
             logDisplayArea.innerText = importLogs.join('\n');
             logToggleBtn.style.display = "block";
             logCopyBtn.style.display = "inline-flex";

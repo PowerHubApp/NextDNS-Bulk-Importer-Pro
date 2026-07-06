@@ -2,6 +2,11 @@
 
 A simple, fast tool to easily add or remove multiple domains all at once.
 
+> [!WARNING]
+> I am not responsible for what happens to your profile or NextDNS account. 
+> Use this script entirely at your own risk. Always back up your configurations or test on a secondary profile before importing large data.
+> This script is designed to automate bulk actions for your convenience, but you are entirely responsible for what you import into your profile.
+
 ---
 
 ## 📸 Screenshots
@@ -40,14 +45,15 @@ First, add a userscript manager extension to your web browser if you don't have 
 ## How to Use
 1. Go to your [NextDNS Dashboard](https://my.nextdns.io/).
 2. Click the new blue shield icon in the bottom-right corner to open the panel.
-3. Choose what you want to import (Deny Lists, Allow Lists, TLDs, etc.).
+3. Choose what you want to import (Deny Lists, Allow Lists, TLDs, Rewrites, etc.).
 4. Paste your list, upload a text file, or enter a URL, then click **Bulk Add** or **Bulk Remove**.
 
 ---
 
 ## Coming Soon
 
-* NextDNS Bulk Importer Pro CLI/GUI tool for Linux, Mac OS and Windows
+* NextDNS Bulk Importer Pro CLI tool for Linux
 * Export/Import NextDNS Profiles
 * Advanced Profile Editor
 * More TLDs presets
+* Denylist & Allowlist presets

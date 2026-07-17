@@ -16,31 +16,31 @@
 // @connect      *
 // ==/UserScript==
 
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    const HAGEZI_URL = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/spam-tlds-adblock.txt";
-    const DOM_RE = "(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}";
-    const IP_RE = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[a-f0-9:]+:+)+[a-f0-9]+";
+  const HAGEZI_URL = "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/spam-tlds-adblock.txt";
+  const DOM_RE = "(?:[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}";
+  const IP_RE = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}|(?:[a-f0-9:]+:+)+[a-f0-9]+";
 
-    let isAborted = false;
-    let isImporting = false;
-    let importLogs = [];
-    let globalRateLimitLock = false;
-    let cachedAvailableBlocklists = [];
+  let isAborted = false;
+  let isImporting = false;
+  let importLogs = [];
+  let globalRateLimitLock = false;
+  let cachedAvailableBlocklists = [];
 
-    const RULES = {
-        denylist: new RegExp(`^(\\*\\.)?${DOM_RE}$|^\\|\\|${DOM_RE}\\^$`, 'i'),
-        allowlist: new RegExp(`^(\\*\\.)?${DOM_RE}$|^@@\\|\\|${DOM_RE}\\^$`, 'i'),
-        tld: /^\.?[a-z0-9\-]+$|^\ *\.?[a-z0-9\-]+$|^\|\|[a-z0-9\-]+\^$/i,
-        rewrites: {
-            domIp: new RegExp(`^(\\*\\.)?(${DOM_RE})\\s+(${IP_RE})$`, 'i'),
-            ipDom: new RegExp(`^(${IP_RE})\\s+(\\*|\\*\\.)?(${DOM_RE})$`, 'i'),
-            adblock: new RegExp(`^\\|\\|(${DOM_RE})\\^\\$dnsrewrite=(?:.+;)?(${IP_RE})$`, 'i')
-        }
-    };
+  const RULES = {
+    denylist: new RegExp(`^(\\*\\.)?${DOM_RE}$|^\\|\\|${DOM_RE}\\^$`, 'i'),
+    allowlist: new RegExp(`^(\\*\\.)?${DOM_RE}$|^@@\\|\\|${DOM_RE}\\^$`, 'i'),
+    tld: /^\.?[a-z0-9\-]+$|^\ *\.?[a-z0-9\-]+$|^\|\|[a-z0-9\-]+\^$/i,
+    rewrites: {
+      domIp: new RegExp(`^(\\*\\.)?(${DOM_RE})\\s+(${IP_RE})$`, 'i'),
+      ipDom: new RegExp(`^(${IP_RE})\\s+(\\*|\\*\\.)?(${DOM_RE})$`, 'i'),
+      adblock: new RegExp(`^\\|\\|(${DOM_RE})\\^\\$dnsrewrite=(?:.+;)?(${IP_RE})$`, 'i')
+    }
+  };
 
-    const styles = `
+  const styles = `
         #ndns-imp-btn {
             position: fixed; bottom: 24px; right: 24px; z-index: 2147483647;
             background: #0070f3; color: #fff; border: 1px solid #0070f3;
@@ -223,23 +223,23 @@
         }
     `;
 
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
 
-    const floatingBtn = document.createElement("button");
-    floatingBtn.id = "ndns-imp-btn";
-    floatingBtn.title = "NextDNS Bulk Importer Pro v1.21";
-    floatingBtn.innerHTML = `
+  const floatingBtn = document.createElement("button");
+  floatingBtn.id = "ndns-imp-btn";
+  floatingBtn.title = "NextDNS Bulk Importer Pro v1.21";
+  floatingBtn.innerHTML = `
        <svg viewBox="0 0 24 24">
            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM11 7h2v2h-2V7zm0 4h2v6h-2v-6z"/>
        </svg>
     `;
-    document.body.appendChild(floatingBtn);
+  document.body.appendChild(floatingBtn);
 
-    const COPY_SVG = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
+  const COPY_SVG = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
 
-    document.body.insertAdjacentHTML('beforeend', `
+  document.body.insertAdjacentHTML('beforeend', `
         <div id="ndns-imp-pnl">
             <div class="mac-controls">
                 <div class="mac-dot mac-close" id="mac-ctrl-close" title="Terminate Script">
@@ -366,1451 +366,1666 @@
         </div>
     `);
 
-    const pnl = document.getElementById("ndns-imp-pnl");
-    const status = document.getElementById("imp-status");
-    const profSel = document.getElementById("imp-prof");
-    const typeSel = document.getElementById("imp-type");
-    const presetSel = document.getElementById("imp-preset");
-    const pWrap = document.getElementById("p-wrap");
-    const blWrap = document.getElementById("bl-wrap");
-    const blCtrlRow = document.getElementById("bl-ctrl-actions");
-    const srcWrap = document.getElementById("src-wrap");
-    const txtInput = document.getElementById("imp-input");
-    const urlInput = document.getElementById("imp-url");
-    const fileInput = document.getElementById("imp-file");
-    const flLbl = document.getElementById("fl-lbl");
-    const logToggleBtn = document.getElementById("log-toggle-btn");
-    const logCopyBtn = document.getElementById("log-copy-btn");
-    const logDisplayArea = document.getElementById("log-display-area");
-    const refreshBtn = document.getElementById("ndns-imp-refresh");
-    const addBtn = document.getElementById("imp-start-add");
-    const removeBtn = document.getElementById("imp-start-remove");
-    const exportConfigBtn = document.getElementById("config-export-btn");
-    const importConfigBtn = document.getElementById("config-import-btn");
-    let cancelBtn = null;
+  const pnl = document.getElementById("ndns-imp-pnl");
+  const status = document.getElementById("imp-status");
+  const profSel = document.getElementById("imp-prof");
+  const typeSel = document.getElementById("imp-type");
+  const presetSel = document.getElementById("imp-preset");
+  const pWrap = document.getElementById("p-wrap");
+  const blWrap = document.getElementById("bl-wrap");
+  const blCtrlRow = document.getElementById("bl-ctrl-actions");
+  const srcWrap = document.getElementById("src-wrap");
+  const txtInput = document.getElementById("imp-input");
+  const urlInput = document.getElementById("imp-url");
+  const fileInput = document.getElementById("imp-file");
+  const flLbl = document.getElementById("fl-lbl");
+  const logToggleBtn = document.getElementById("log-toggle-btn");
+  const logCopyBtn = document.getElementById("log-copy-btn");
+  const logDisplayArea = document.getElementById("log-display-area");
+  const refreshBtn = document.getElementById("ndns-imp-refresh");
+  const addBtn = document.getElementById("imp-start-add");
+  const removeBtn = document.getElementById("imp-start-remove");
+  const exportConfigBtn = document.getElementById("config-export-btn");
+  const importConfigBtn = document.getElementById("config-import-btn");
+  let cancelBtn = null;
 
-    const stTlds = document.getElementById("st-tlds");
-    const stBl = document.getElementById("st-bl");
-    const stDl = document.getElementById("st-dl");
-    const stAl = document.getElementById("st-al");
-    const stRw = document.getElementById("st-rw");
+  const stTlds = document.getElementById("st-tlds");
+  const stBl = document.getElementById("st-bl");
+  const stDl = document.getElementById("st-dl");
+  const stAl = document.getElementById("st-al");
+  const stRw = document.getElementById("st-rw");
 
-    const impGrid = pnl.querySelector(".imp-grid");
-    const formInputs = pnl.querySelectorAll("select, input, textarea, .file-lbl, .bl-checkbox-list");
-    const formLabels = pnl.querySelectorAll(".imp-fld-lbl, .imp-lbl, #imp-status");
-    const copyButtons = pnl.querySelectorAll(".mini-copy-btn");
+  const impGrid = pnl.querySelector(".imp-grid");
+  const formInputs = pnl.querySelectorAll("select, input, textarea, .file-lbl, .bl-checkbox-list");
+  const formLabels = pnl.querySelectorAll(".imp-fld-lbl, .imp-lbl, #imp-status");
+  const copyButtons = pnl.querySelectorAll(".mini-copy-btn");
 
-    const setupId = document.getElementById("setup-id");
-    const setupLinkIp = document.getElementById("setup-linkip");
-    const setupDoh = document.getElementById("setup-doh");
-    const setupDoh3 = document.getElementById("setup-doh3");
-    const setupAnydoh = document.getElementById("setup-anydoh");
-    const setupUltradoh = document.getElementById("setup-ultradoh");
-    const setupDot = document.getElementById("setup-dot");
-    const setupPanel = document.getElementById("setup-panel");
-    const toggleEndpointsBtn = document.getElementById("toggle-endpoints-btn");
+  const setupId = document.getElementById("setup-id");
+  const setupLinkIp = document.getElementById("setup-linkip");
+  const setupDoh = document.getElementById("setup-doh");
+  const setupDoh3 = document.getElementById("setup-doh3");
+  const setupAnydoh = document.getElementById("setup-anydoh");
+  const setupUltradoh = document.getElementById("setup-ultradoh");
+  const setupDot = document.getElementById("setup-dot");
+  const setupPanel = document.getElementById("setup-panel");
+  const toggleEndpointsBtn = document.getElementById("toggle-endpoints-btn");
 
-    let isDarkTheme = false;
-    let isSyncingTokens = false;
+  let isDarkTheme = false;
+  let isSyncingTokens = false;
 
-    // Dynamically created hidden element for importing config files
-    const configFileInput = document.createElement("input");
-    configFileInput.type = "file";
-    configFileInput.accept = ".json";
-    configFileInput.style.display = "none";
-    document.body.appendChild(configFileInput);
+  // Dynamically created hidden element for importing config files
+  const configFileInput = document.createElement("input");
+  configFileInput.type = "file";
+  configFileInput.accept = ".json";
+  configFileInput.style.display = "none";
+  document.body.appendChild(configFileInput);
 
-    // Initialize custom resize triggers
-    makeResizable(pnl);
+  // Initialize custom resize triggers
+  makeResizable(pnl);
 
-    toggleEndpointsBtn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        const isCurrentlyHidden = window.getComputedStyle(setupPanel).display === "none";
-        if (isCurrentlyHidden) {
-            setupPanel.style.display = "block";
-            toggleEndpointsBtn.innerText = "Hide";
-        } else {
-            setupPanel.style.display = "none";
-            toggleEndpointsBtn.innerText = "Show";
-        }
-    });
+  toggleEndpointsBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isCurrentlyHidden = window.getComputedStyle(setupPanel).display === "none";
+    if (isCurrentlyHidden) {
+      setupPanel.style.display = "block";
+      toggleEndpointsBtn.innerText = "Hide";
+    }
+    else {
+      setupPanel.style.display = "none";
+      toggleEndpointsBtn.innerText = "Show";
+    }
+  });
 
-    /**
-     * WINDOW RESIZING ENGINE
-     * Implements edge-bound resizers. Calculates offsets to scale container towards top-left.
-     */
-    function makeResizable(targetPnl) {
-        const resizerL = document.createElement('div');
-        resizerL.className = 'pnl-resize-l';
-        const resizerT = document.createElement('div');
-        resizerT.className = 'pnl-resize-t';
-        const resizerTL = document.createElement('div');
-        resizerTL.className = 'pnl-resize-tl';
+  /**
+   * WINDOW RESIZING ENGINE
+   * Implements edge-bound resizers. Calculates offsets to scale container towards top-left.
+   */
+  function makeResizable(targetPnl) {
+    const resizerL = document.createElement('div');
+    resizerL.className = 'pnl-resize-l';
+    const resizerT = document.createElement('div');
+    resizerT.className = 'pnl-resize-t';
+    const resizerTL = document.createElement('div');
+    resizerTL.className = 'pnl-resize-tl';
 
-        targetPnl.appendChild(resizerL);
-        targetPnl.appendChild(resizerT);
-        targetPnl.appendChild(resizerTL);
+    targetPnl.appendChild(resizerL);
+    targetPnl.appendChild(resizerT);
+    targetPnl.appendChild(resizerTL);
 
-        let isResizing = false;
-        let activeHandle = null;
-        let startWidth, startHeight, startX, startY;
+    let isResizing = false;
+    let activeHandle = null;
+    let startWidth, startHeight, startX, startY;
 
-        function startResize(e, handle) {
-            e.preventDefault();
-            e.stopPropagation();
-            isResizing = true;
-            activeHandle = handle;
-            startX = e.clientX;
-            startY = e.clientY;
-            const rect = targetPnl.getBoundingClientRect();
-            startWidth = rect.width;
-            startHeight = rect.height;
-            handle.setPointerCapture(e.pointerId);
-        }
-
-        function resize(e) {
-            if (!isResizing) return;
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-
-            targetPnl.style.maxWidth = 'none';
-            targetPnl.style.maxHeight = 'none';
-
-            if (activeHandle === resizerL || activeHandle === resizerTL) {
-                const newWidth = Math.max(320, Math.min(window.innerWidth - 48, startWidth - deltaX));
-                targetPnl.style.width = newWidth + 'px';
-            }
-            if (activeHandle === resizerT || activeHandle === resizerTL) {
-                const newHeight = Math.max(350, Math.min(window.innerHeight - 100, startHeight - deltaY));
-                targetPnl.style.height = newHeight + 'px';
-            }
-        }
-
-        function stopResize(e) {
-            if (!isResizing) return;
-            isResizing = false;
-            if (activeHandle) {
-                try { activeHandle.releasePointerCapture(e.pointerId); } catch (_) {}
-            }
-            activeHandle = null;
-        }
-
-        resizerL.addEventListener('pointerdown', (e) => startResize(e, resizerL));
-        resizerT.addEventListener('pointerdown', (e) => startResize(e, resizerT));
-        resizerTL.addEventListener('pointerdown', (e) => startResize(e, resizerTL));
-
-        window.addEventListener('pointermove', resize);
-        window.addEventListener('pointerup', stopResize);
-        window.addEventListener('pointercancel', stopResize);
+    function startResize(e, handle) {
+      e.preventDefault();
+      e.stopPropagation();
+      isResizing = true;
+      activeHandle = handle;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = targetPnl.getBoundingClientRect();
+      startWidth = rect.width;
+      startHeight = rect.height;
+      handle.setPointerCapture(e.pointerId);
     }
 
-    function updateEndpoints(profileId) {
-        if (!profileId) {
-            setupId.innerText = "------";
-            setupLinkIp.innerText = "------";
-            setupLinkIp.removeAttribute("data-copy");
-            setupDoh.innerText = "https://dns.nextdns.io/...";
-            setupDoh3.innerText = "https://doh3.dns.nextdns.io/...";
-            setupAnydoh.innerText = "https://anycast.dns.nextdns.io/...";
-            setupUltradoh.innerText = "https://ultralow.dns.nextdns.io/...";
-            setupDot.innerText = "...dns.nextdns.io";
-            return;
+    function resize(e) {
+      if (!isResizing) return;
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+
+      targetPnl.style.maxWidth = 'none';
+      targetPnl.style.maxHeight = 'none';
+
+      if (activeHandle === resizerL || activeHandle === resizerTL) {
+        const newWidth = Math.max(320, Math.min(window.innerWidth - 48, startWidth - deltaX));
+        targetPnl.style.width = newWidth + 'px';
+      }
+      if (activeHandle === resizerT || activeHandle === resizerTL) {
+        const newHeight = Math.max(350, Math.min(window.innerHeight - 100, startHeight - deltaY));
+        targetPnl.style.height = newHeight + 'px';
+      }
+    }
+
+    function stopResize(e) {
+      if (!isResizing) return;
+      isResizing = false;
+      if (activeHandle) {
+        try {
+          activeHandle.releasePointerCapture(e.pointerId);
         }
+        catch (_) {}
+      }
+      activeHandle = null;
+    }
 
-        setupId.innerText = profileId;
-        setupId.setAttribute("data-copy", profileId);
+    resizerL.addEventListener('pointerdown', (e) => startResize(e, resizerL));
+    resizerT.addEventListener('pointerdown', (e) => startResize(e, resizerT));
+    resizerTL.addEventListener('pointerdown', (e) => startResize(e, resizerTL));
 
-        setupLinkIp.innerText = "Loading...";
+    window.addEventListener('pointermove', resize);
+    window.addEventListener('pointerup', stopResize);
+    window.addEventListener('pointercancel', stopResize);
+  }
+
+  function updateEndpoints(profileId) {
+    if (!profileId) {
+      setupId.innerText = "------";
+      setupLinkIp.innerText = "------";
+      setupLinkIp.removeAttribute("data-copy");
+      setupDoh.innerText = "https://dns.nextdns.io/...";
+      setupDoh3.innerText = "https://doh3.dns.nextdns.io/...";
+      setupAnydoh.innerText = "https://anycast.dns.nextdns.io/...";
+      setupUltradoh.innerText = "https://ultralow.dns.nextdns.io/...";
+      setupDot.innerText = "...dns.nextdns.io";
+      return;
+    }
+
+    setupId.innerText = profileId;
+    setupId.setAttribute("data-copy", profileId);
+
+    setupLinkIp.innerText = "Loading...";
+    setupLinkIp.removeAttribute("data-copy");
+    loadLinkedIp(profileId);
+
+    setupDoh.innerText = `https://dns.nextdns.io/${profileId}`;
+    setupDoh.setAttribute("data-copy", `https://dns.nextdns.io/${profileId}`);
+
+    setupDoh3.innerText = `https://doh3.dns.nextdns.io/${profileId}`;
+    setupDoh3.setAttribute("data-copy", `https://doh3.dns.nextdns.io/${profileId}`);
+
+    setupAnydoh.innerText = `https://anycast.dns.nextdns.io/${profileId}`;
+    setupAnydoh.setAttribute("data-copy", `https://anycast.dns.nextdns.io/${profileId}`);
+
+    setupUltradoh.innerText = `https://ultralow.dns.nextdns.io/${profileId}`;
+    setupUltradoh.setAttribute("data-copy", `https://ultralow.dns.nextdns.io/${profileId}`);
+
+    setupDot.innerText = `${profileId}.dns.nextdns.io`;
+    setupDot.setAttribute("data-copy", `${profileId}.dns.nextdns.io`);
+  }
+
+  let linkedIpRequestId = 0;
+  async function loadLinkedIp(profileId) {
+    const requestId = ++linkedIpRequestId;
+    try {
+      const res = await fetch(`https://api.nextdns.io/profiles/${profileId}/setup`, {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (requestId !== linkedIpRequestId) return;
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      const info = json?.data || json;
+
+      const currentLinkedIp = info?.linkedIp?.ip || (typeof info?.linkedIp === 'string' ? info.linkedIp : '') || info?.setup?.linkedIp || "";
+      const linkUrl = info?.linkedIp?.link || "";
+
+      if (currentLinkedIp) {
+        setupLinkIp.innerText = currentLinkedIp;
+        setupLinkIp.setAttribute("data-copy", currentLinkedIp);
+        setupLinkIp.setAttribute("title", `Currently linked WAN IP: ${currentLinkedIp}. Click to update/re-link.`);
+      }
+      else {
+        setupLinkIp.innerText = "Not Linked (Click to Link)";
         setupLinkIp.removeAttribute("data-copy");
-        loadLinkedIp(profileId);
+        setupLinkIp.setAttribute("title", "Click to link your network public IP address.");
+      }
 
-        setupDoh.innerText = `https://dns.nextdns.io/${profileId}`;
-        setupDoh.setAttribute("data-copy", `https://dns.nextdns.io/${profileId}`);
-
-        setupDoh3.innerText = `https://doh3.dns.nextdns.io/${profileId}`;
-        setupDoh3.setAttribute("data-copy", `https://doh3.dns.nextdns.io/${profileId}`);
-
-        setupAnydoh.innerText = `https://anycast.dns.nextdns.io/${profileId}`;
-        setupAnydoh.setAttribute("data-copy", `https://anycast.dns.nextdns.io/${profileId}`);
-
-        setupUltradoh.innerText = `https://ultralow.dns.nextdns.io/${profileId}`;
-        setupUltradoh.setAttribute("data-copy", `https://ultralow.dns.nextdns.io/${profileId}`);
-
-        setupDot.innerText = `${profileId}.dns.nextdns.io`;
-        setupDot.setAttribute("data-copy", `${profileId}.dns.nextdns.io`);
+      if (linkUrl) {
+        setupLinkIp.setAttribute("data-link-url", linkUrl);
+      }
+      else {
+        setupLinkIp.removeAttribute("data-link-url");
+      }
     }
-
-    let linkedIpRequestId = 0;
-    async function loadLinkedIp(profileId) {
-        const requestId = ++linkedIpRequestId;
-        try {
-            const res = await fetch(`https://api.nextdns.io/profiles/${profileId}/setup`, {
-                method: 'GET',
-                credentials: 'include',
-                cache: 'no-store',
-                headers: {
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                }
-            });
-            if (requestId !== linkedIpRequestId) return;
-            if (!res.ok) throw new Error();
-            const json = await res.json();
-            const info = json?.data || json;
-
-            const currentLinkedIp = info?.linkedIp?.ip || (typeof info?.linkedIp === 'string' ? info.linkedIp : '') || info?.setup?.linkedIp || "";
-            const linkUrl = info?.linkedIp?.link || "";
-
-            if (currentLinkedIp) {
-                setupLinkIp.innerText = currentLinkedIp;
-                setupLinkIp.setAttribute("data-copy", currentLinkedIp);
-                setupLinkIp.setAttribute("title", `Currently linked WAN IP: ${currentLinkedIp}. Click to update/re-link.`);
-            } else {
-                setupLinkIp.innerText = "Not Linked (Click to Link)";
-                setupLinkIp.removeAttribute("data-copy");
-                setupLinkIp.setAttribute("title", "Click to link your network public IP address.");
-            }
-
-            if (linkUrl) {
-                setupLinkIp.setAttribute("data-link-url", linkUrl);
-            } else {
-                setupLinkIp.removeAttribute("data-link-url");
-            }
-        } catch {
-            if (requestId !== linkedIpRequestId) return;
-            setupLinkIp.innerText = "Unavailable";
-            setupLinkIp.removeAttribute("data-copy");
-            setupLinkIp.removeAttribute("data-link-url");
-        }
+    catch {
+      if (requestId !== linkedIpRequestId) return;
+      setupLinkIp.innerText = "Unavailable";
+      setupLinkIp.removeAttribute("data-copy");
+      setupLinkIp.removeAttribute("data-link-url");
     }
+  }
 
-    function setupCopyListeners() {
-        const setupVals = pnl.querySelectorAll(".ndns-setup-val");
-        setupVals.forEach(el => {
-            el.addEventListener("click", async () => {
-                if (el.id === "setup-linkip") {
-                    const profileId = profSel.value;
-                    if (!profileId || el.innerText === "Loading..." || el.innerText === "Linking...") return;
+  function setupCopyListeners() {
+    const setupVals = pnl.querySelectorAll(".ndns-setup-val");
+    setupVals.forEach(el => {
+      el.addEventListener("click", async () => {
+        if (el.id === "setup-linkip") {
+          const profileId = profSel.value;
+          if (!profileId || el.innerText === "Loading..." || el.innerText === "Linking...") return;
 
-                    const originalText = el.innerText;
-                    el.innerText = "Linking...";
-                    el.style.color = "#0070f3";
+          const originalText = el.innerText;
+          el.innerText = "Linking...";
+          el.style.color = "#0070f3";
 
-                    const linkUrl = el.getAttribute("data-link-url") || `https://link-ip.nextdns.io/${profileId}`;
+          const linkUrl = el.getAttribute("data-link-url") || `https://link-ip.nextdns.io/${profileId}`;
 
-                    const fallbackFetchLink = async () => {
-                        try {
-                            const response = await fetch(linkUrl, { method: 'GET', mode: 'cors' });
-                            const respText = await response.text();
-
-                            if (respText && respText.trim() && !respText.includes("{") && !respText.includes("<")) {
-                                const cleanIp = respText.trim();
-                                el.innerText = cleanIp;
-                                el.setAttribute("data-copy", cleanIp);
-                            } else {
-                                el.innerText = "Linked!";
-                            }
-
-                            el.style.color = "#42b983";
-                            setTimeout(() => {
-                                loadLinkedIp(profileId);
-                                el.style.color = "";
-                            }, 1800);
-                        } catch (err) {
-                            el.innerText = "Failed";
-                            el.style.color = "#ff6b6b";
-                            setTimeout(() => {
-                                el.innerText = originalText;
-                                el.style.color = "";
-                            }, 1500);
-                        }
-                    };
-
-                    if (typeof GM_xmlhttpRequest !== "undefined") {
-                        GM_xmlhttpRequest({
-                            method: "GET",
-                            url: linkUrl,
-                            headers: { "Accept": "text/html,text/plain" },
-                            onload: (response) => {
-                                if (response.status >= 200 && response.status < 400) {
-                                    const respText = response.responseText;
-                                    if (respText && respText.trim() && !respText.includes("{") && !respText.includes("<")) {
-                                        const cleanIp = respText.trim();
-                                        el.innerText = cleanIp;
-                                        el.setAttribute("data-copy", cleanIp);
-                                    } else {
-                                        el.innerText = "Linked!";
-                                    }
-                                    el.style.color = "#42b983";
-                                    setTimeout(() => {
-                                        loadLinkedIp(profileId);
-                                        el.style.color = "";
-                                    }, 1800);
-                                } else {
-                                    fallbackFetchLink();
-                                }
-                            },
-                            onerror: () => {
-                                fallbackFetchLink();
-                            }
-                        });
-                    } else {
-                        await fallbackFetchLink();
-                    }
-                    return;
-                }
-
-                const textToCopy = el.getAttribute("data-copy") || el.innerText;
-                if (!textToCopy || textToCopy.includes("...") || textToCopy.includes("---") || textToCopy === "Unavailable") return;
-
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    const originalText = el.innerText;
-                    el.innerText = "Copied!";
-                    el.style.color = "#42b983";
-                    setTimeout(() => {
-                        el.innerText = originalText;
-                        el.style.color = "";
-                    }, 1000);
-                });
-            });
-        });
-    }
-
-    function getOrdinalAttemptText(count) {
-        const ordinals = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
-        return ordinals[count - 1] || `${count}th`;
-    }
-
-    function syncCheckboxesToTextarea() {
-        if (isSyncingTokens || typeSel.value !== 'blocklists') return;
-        isSyncingTokens = true;
-
-        const checkedIds = [];
-        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
-        for (let i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) checkedIds.push(checkboxes[i].value);
-        }
-
-        txtInput.value = checkedIds.join('\n');
-        isSyncingTokens = false;
-    }
-
-    function syncTextareaToCheckboxes() {
-        if (isSyncingTokens || typeSel.value !== 'blocklists') return;
-        isSyncingTokens = true;
-
-        const currentTokens = new Set(
-            txtInput.value.split('\n').map(r => r.trim().toLowerCase()).filter(Boolean)
-        );
-
-        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
-        for (let i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = currentTokens.has(checkboxes[i].value.toLowerCase());
-        }
-
-        isSyncingTokens = false;
-    }
-
-    txtInput.addEventListener('input', syncTextareaToCheckboxes);
-
-    async function loadDynamicNextDNSBlocklists() {
-        const profId = profSel.value;
-        if (!profId) return;
-
-        let data = null;
-        try {
-            const res = await fetch(`https://api.nextdns.io/profiles/${profId}/privacy/blocklists/available`, { method: 'GET', credentials: 'include' });
-            if (res.ok) {
-                const json = await res.json();
-                if (json?.data) data = json.data;
-            }
-        } catch (e) {}
-
-        if (!data) {
+          const fallbackFetchLink = async () => {
             try {
-                const globalRes = await fetch(`https://api.nextdns.io/privacy/blocklists`, { method: 'GET', credentials: 'include' });
-                if (globalRes.ok) {
-                    const globalJson = await globalRes.json();
-                    if (globalJson?.data) data = globalJson.data;
+              const response = await fetch(linkUrl, {
+                method: 'GET',
+                mode: 'cors'
+              });
+              const respText = await response.text();
+
+              if (respText && respText.trim() && !respText.includes("{") && !respText.includes("<")) {
+                const cleanIp = respText.trim();
+                el.innerText = cleanIp;
+                el.setAttribute("data-copy", cleanIp);
+              }
+              else {
+                el.innerText = "Linked!";
+              }
+
+              el.style.color = "#42b983";
+              setTimeout(() => {
+                loadLinkedIp(profileId);
+                el.style.color = "";
+              }, 1800);
+            }
+            catch (err) {
+              el.innerText = "Failed";
+              el.style.color = "#ff6b6b";
+              setTimeout(() => {
+                el.innerText = originalText;
+                el.style.color = "";
+              }, 1500);
+            }
+          };
+
+          if (typeof GM_xmlhttpRequest !== "undefined") {
+            GM_xmlhttpRequest({
+              method: "GET",
+              url: linkUrl,
+              headers: {
+                "Accept": "text/html,text/plain"
+              },
+              onload: (response) => {
+                if (response.status >= 200 && response.status < 400) {
+                  const respText = response.responseText;
+                  if (respText && respText.trim() && !respText.includes("{") && !respText.includes("<")) {
+                    const cleanIp = respText.trim();
+                    el.innerText = cleanIp;
+                    el.setAttribute("data-copy", cleanIp);
+                  }
+                  else {
+                    el.innerText = "Linked!";
+                  }
+                  el.style.color = "#42b983";
+                  setTimeout(() => {
+                    loadLinkedIp(profileId);
+                    el.style.color = "";
+                  }, 1800);
                 }
-            } catch (e) {}
+                else {
+                  fallbackFetchLink();
+                }
+              },
+              onerror: () => {
+                fallbackFetchLink();
+              }
+            });
+          }
+          else {
+            await fallbackFetchLink();
+          }
+          return;
         }
 
-        if (data) {
-            cachedAvailableBlocklists = data;
+        const textToCopy = el.getAttribute("data-copy") || el.innerText;
+        if (!textToCopy || textToCopy.includes("...") || textToCopy.includes("---") || textToCopy === "Unavailable") return;
 
-            let htmlBuffer = '';
-            for (let i = 0; i < cachedAvailableBlocklists.length; i++) {
-                const bl = cachedAvailableBlocklists[i];
-                htmlBuffer += `
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const originalText = el.innerText;
+          el.innerText = "Copied!";
+          el.style.color = "#42b983";
+          setTimeout(() => {
+            el.innerText = originalText;
+            el.style.color = "";
+          }, 1000);
+        });
+      });
+    });
+  }
+
+  function getOrdinalAttemptText(count) {
+    const ordinals = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+    return ordinals[count - 1] || `${count}th`;
+  }
+
+  function syncCheckboxesToTextarea() {
+    if (isSyncingTokens || typeSel.value !== 'blocklists') return;
+    isSyncingTokens = true;
+
+    const checkedIds = [];
+    const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].checked) checkedIds.push(checkboxes[i].value);
+    }
+
+    txtInput.value = checkedIds.join('\n');
+    isSyncingTokens = false;
+  }
+
+  function syncTextareaToCheckboxes() {
+    if (isSyncingTokens || typeSel.value !== 'blocklists') return;
+    isSyncingTokens = true;
+
+    const currentTokens = new Set(
+      txtInput.value.split('\n').map(r => r.trim().toLowerCase()).filter(Boolean)
+    );
+
+    const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = currentTokens.has(checkboxes[i].value.toLowerCase());
+    }
+
+    isSyncingTokens = false;
+  }
+
+  txtInput.addEventListener('input', syncTextareaToCheckboxes);
+
+  async function loadDynamicNextDNSBlocklists() {
+    const profId = profSel.value;
+    if (!profId) return;
+
+    let data = null;
+    try {
+      const res = await fetch(`https://api.nextdns.io/profiles/${profId}/privacy/blocklists/available`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.data) data = json.data;
+      }
+    }
+    catch (e) {}
+
+    if (!data) {
+      try {
+        const globalRes = await fetch(`https://api.nextdns.io/privacy/blocklists`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        if (globalRes.ok) {
+          const globalJson = await globalRes.json();
+          if (globalJson?.data) data = globalJson.data;
+        }
+      }
+      catch (e) {}
+    }
+
+    if (data) {
+      cachedAvailableBlocklists = data;
+
+      let htmlBuffer = '';
+      for (let i = 0; i < cachedAvailableBlocklists.length; i++) {
+        const bl = cachedAvailableBlocklists[i];
+        htmlBuffer += `
                     <label class="bl-item" title="${bl.name || bl.id}">
                         <input type="checkbox" value="${bl.id}">
                         <span>${bl.name || bl.id}</span>
                     </label>
                 `;
-            }
-            blWrap.innerHTML = htmlBuffer;
+      }
+      blWrap.innerHTML = htmlBuffer;
 
-            const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
-            for (let i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].addEventListener('change', syncCheckboxesToTextarea);
-            }
+      const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+      for (let i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].addEventListener('change', syncCheckboxesToTextarea);
+      }
 
-            syncTextareaToCheckboxes();
-            themeSync();
-        } else {
-            blWrap.innerHTML = '<div style="padding: 10px; text-align: center; font-size: 12px; color: #ff6b6b; grid-column: 1/-1;">Failed to populate live NextDNS blocklist map.</div>';
-        }
+      syncTextareaToCheckboxes();
+      themeSync();
+    }
+    else {
+      blWrap.innerHTML = '<div style="padding: 10px; text-align: center; font-size: 12px; color: #ff6b6b; grid-column: 1/-1;">Failed to populate live NextDNS blocklist map.</div>';
+    }
+  }
+
+  document.getElementById("bl-master-all").addEventListener("click", () => {
+    const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = true;
+    syncCheckboxesToTextarea();
+  });
+  document.getElementById("bl-master-none").addEventListener("click", () => {
+    const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
+    for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = false;
+    syncCheckboxesToTextarea();
+  });
+
+  function updateActiveGridBox(currentType) {
+    pnl.querySelectorAll(".imp-box").forEach(box => box.classList.remove("active"));
+    let targetBoxId = "";
+    if (currentType === "tld") targetBoxId = "box-tlds";
+    else if (currentType === "blocklists") targetBoxId = "box-blocklists";
+    else if (currentType === "denylist") targetBoxId = "box-denylist";
+    else if (currentType === "allowlist") targetBoxId = "box-allowlist";
+    else if (currentType === "rewrites") targetBoxId = "box-rewrites";
+
+    const targetBox = document.getElementById(targetBoxId);
+    if (targetBox) targetBox.classList.add("active");
+  }
+
+  function themeSync() {
+    const firstMatch = window.getComputedStyle(document.body).color.match(/\d+/);
+    isDarkTheme = firstMatch && parseInt(firstMatch[0], 10) > 140;
+
+    pnl.style.background = isDarkTheme ? "#1c1e22" : "#ffffff";
+    pnl.style.color = isDarkTheme ? "#ffffff" : "#111111";
+    pnl.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
+    impGrid.style.background = isDarkTheme ? "#131517" : "#fafafa";
+    impGrid.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
+
+    setupPanel.style.background = isDarkTheme ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.02)";
+    setupPanel.style.borderColor = isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
+    const setupKeys = pnl.querySelectorAll(".ndns-setup-key");
+    setupKeys.forEach(el => el.style.color = isDarkTheme ? "#aaa" : "#555");
+
+    toggleEndpointsBtn.style.color = isDarkTheme ? "#38bdf8" : "#0070f3";
+    toggleEndpointsBtn.style.borderColor = isDarkTheme ? "#38bdf8" : "#0070f3";
+
+    const inputBg = isDarkTheme ? "#131517" : "#ffffff";
+    const inputColor = isDarkTheme ? "#ffffff" : "#111111";
+    const inputBorder = isDarkTheme ? "#2f343c" : "#eaeaea";
+    for (let i = 0; i < formInputs.length; i++) {
+      const el = formInputs[i];
+      el.style.background = inputBg;
+      el.style.color = inputColor;
+      el.style.borderColor = inputBorder;
     }
 
-    document.getElementById("bl-master-all").addEventListener("click", () => {
-        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
-        for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = true;
-        syncCheckboxesToTextarea();
-    });
-    document.getElementById("bl-master-none").addEventListener("click", () => {
-        const checkboxes = blWrap.querySelectorAll("input[type='checkbox']");
-        for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = false;
-        syncCheckboxesToTextarea();
-    });
-
-    function updateActiveGridBox(currentType) {
-        pnl.querySelectorAll(".imp-box").forEach(box => box.classList.remove("active"));
-        let targetBoxId = "";
-        if (currentType === "tld") targetBoxId = "box-tlds";
-        else if (currentType === "blocklists") targetBoxId = "box-blocklists";
-        else if (currentType === "denylist") targetBoxId = "box-denylist";
-        else if (currentType === "allowlist") targetBoxId = "box-allowlist";
-        else if (currentType === "rewrites") targetBoxId = "box-rewrites";
-
-        const targetBox = document.getElementById(targetBoxId);
-        if (targetBox) targetBox.classList.add("active");
+    const labelColor = isDarkTheme ? "#8892b0" : "#666666";
+    for (let i = 0; i < formLabels.length; i++) {
+      const el = formLabels[i];
+      if (el.id !== "imp-status") {
+        el.style.color = labelColor;
+      }
     }
 
-    function themeSync() {
-        const firstMatch = window.getComputedStyle(document.body).color.match(/\d+/);
-        isDarkTheme = firstMatch && parseInt(firstMatch[0], 10) > 140;
-
-        pnl.style.background = isDarkTheme ? "#1c1e22" : "#ffffff";
-        pnl.style.color = isDarkTheme ? "#ffffff" : "#111111";
-        pnl.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
-        impGrid.style.background = isDarkTheme ? "#131517" : "#fafafa";
-        impGrid.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
-
-        setupPanel.style.background = isDarkTheme ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.02)";
-        setupPanel.style.borderColor = isDarkTheme ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
-        const setupKeys = pnl.querySelectorAll(".ndns-setup-key");
-        setupKeys.forEach(el => el.style.color = isDarkTheme ? "#aaa" : "#555");
-
-        toggleEndpointsBtn.style.color = isDarkTheme ? "#38bdf8" : "#0070f3";
-        toggleEndpointsBtn.style.borderColor = isDarkTheme ? "#38bdf8" : "#0070f3";
-
-        const inputBg = isDarkTheme ? "#131517" : "#ffffff";
-        const inputColor = isDarkTheme ? "#ffffff" : "#111111";
-        const inputBorder = isDarkTheme ? "#2f343c" : "#eaeaea";
-        for (let i = 0; i < formInputs.length; i++) {
-            const el = formInputs[i];
-            el.style.background = inputBg;
-            el.style.color = inputColor;
-            el.style.borderColor = inputBorder;
-        }
-
-        const labelColor = isDarkTheme ? "#8892b0" : "#666666";
-        for (let i = 0; i < formLabels.length; i++) {
-            const el = formLabels[i];
-            if (el.id !== "imp-status") {
-                el.style.color = labelColor;
-            }
-        }
-
-        for (let i = 0; i < copyButtons.length; i++) {
-            copyButtons[i].style.color = labelColor;
-        }
-
-        if (status.children.length === 0) {
-            const txt = status.innerText;
-            if (txt === "Ready") {
-                status.style.color = "#42b983";
-            } else if (txt === "Operation Cancelled" || txt.startsWith("Error")) {
-                status.style.color = "#ff6b6b";
-            } else {
-                status.style.color = labelColor;
-            }
-        }
-
-        [addBtn, removeBtn, exportConfigBtn, importConfigBtn].forEach((btn) => {
-            if (btn === cancelBtn) {
-                btn.style.background = "#ff6b6b";
-                btn.style.color = "#ffffff";
-                btn.style.borderColor = "#ff6b6b";
-            } else if (btn.disabled) {
-                btn.style.background = isDarkTheme ? "#2f343c" : "#eaeaea";
-                btn.style.color = isDarkTheme ? "#8892b0" : "#999999";
-                btn.style.borderColor = "transparent";
-            } else {
-                btn.style.background = "";
-                btn.style.color = "";
-                btn.style.borderColor = "";
-            }
-        });
-
-        refreshBtn.style.color = labelColor;
-        logToggleBtn.style.borderColor = isDarkTheme ? "#3a3f47" : "#eaeaea";
-        logToggleBtn.style.color = labelColor;
-        logDisplayArea.style.background = isDarkTheme ? "#131517" : "#fafafa";
-        logDisplayArea.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
-        logDisplayArea.style.color = isDarkTheme ? "#a2aabf" : "#444444";
+    for (let i = 0; i < copyButtons.length; i++) {
+      copyButtons[i].style.color = labelColor;
     }
 
-    function setStatusError(message) {
-        status.innerHTML = message;
-        status.style.color = "#ff6b6b";
-    }
-
-    function setStatusReady() {
-        status.innerHTML = "Ready";
+    if (status.children.length === 0) {
+      const txt = status.innerText;
+      if (txt === "Ready") {
         status.style.color = "#42b983";
+      }
+      else if (txt === "Operation Cancelled" || txt.startsWith("Error")) {
+        status.style.color = "#ff6b6b";
+      }
+      else {
+        status.style.color = labelColor;
+      }
     }
 
-    function setStatusText(message) {
-        status.innerHTML = message;
-        status.style.color = isDarkTheme ? "#8892b0" : "#666666";
+    [addBtn, removeBtn, exportConfigBtn, importConfigBtn].forEach((btn) => {
+      if (btn === cancelBtn) {
+        btn.style.background = "#ff6b6b";
+        btn.style.color = "#ffffff";
+        btn.style.borderColor = "#ff6b6b";
+      }
+      else if (btn.disabled) {
+        btn.style.background = isDarkTheme ? "#2f343c" : "#eaeaea";
+        btn.style.color = isDarkTheme ? "#8892b0" : "#999999";
+        btn.style.borderColor = "transparent";
+      }
+      else {
+        btn.style.background = "";
+        btn.style.color = "";
+        btn.style.borderColor = "";
+      }
+    });
+
+    refreshBtn.style.color = labelColor;
+    logToggleBtn.style.borderColor = isDarkTheme ? "#3a3f47" : "#eaeaea";
+    logToggleBtn.style.color = labelColor;
+    logDisplayArea.style.background = isDarkTheme ? "#131517" : "#fafafa";
+    logDisplayArea.style.borderColor = isDarkTheme ? "#2f343c" : "#eaeaea";
+    logDisplayArea.style.color = isDarkTheme ? "#a2aabf" : "#444444";
+  }
+
+  function setStatusError(message) {
+    status.innerHTML = message;
+    status.style.color = "#ff6b6b";
+  }
+
+  function setStatusReady() {
+    status.innerHTML = "Ready";
+    status.style.color = "#42b983";
+  }
+
+  function setStatusText(message) {
+    status.innerHTML = message;
+    status.style.color = isDarkTheme ? "#8892b0" : "#666666";
+  }
+
+  function renderSegmentedSummary(processed, skipped, failed, isRemoveMode = false) {
+    const neutralColor = isDarkTheme ? "#8892b0" : "#666666";
+    const finalActionColor = processed === 0 ? neutralColor : (isRemoveMode ? "#ff6b6b" : "#42b983");
+    const finalFailColor = failed === 0 ? neutralColor : "#ff6b6b";
+
+    status.style.color = "inherit";
+    status.innerHTML = `<span style="color: ${finalActionColor};">${isRemoveMode ? 'Removed' : 'Imported'}: ${processed}</span>  <span style="color: ${neutralColor};">Skipped: ${skipped}</span>  <span style="color: ${finalFailColor};">Failed: ${failed}</span>`;
+  }
+
+  const hints = {
+    denylist: "example.com\n*.example.com\n||example.com^",
+    allowlist: "example.com\n*.example.com\n@@||example.com^",
+    rewrites: "example.com 1.1.1.1\n||example.com^$dnsrewrite=0.0.0.0\n1.1.1.1 example.com",
+    tld: ".xyz\nxyz\n*.xyz\n||xyz^",
+    blocklists: "Checking checkbox options will write live tokens here automatically."
+  };
+
+  function uiToggle() {
+    const currentType = typeSel.value;
+    txtInput.placeholder = hints[currentType] || "";
+
+    const isTld = currentType === 'tld';
+    const isBlocklists = currentType === 'blocklists';
+
+    pWrap.style.display = isTld ? "block" : "none";
+    blWrap.style.display = isBlocklists ? "grid" : "none";
+    blCtrlRow.style.display = isBlocklists ? "flex" : "none";
+
+    const isBlocklistDisplay = isBlocklists ? "none" : "flex";
+    const isBlocklistBlock = isBlocklists ? "none" : "block";
+
+    document.getElementById("src-url-lbl").style.display = isBlocklistDisplay;
+    urlInput.style.display = isBlocklistBlock;
+    document.getElementById("src-file-lbl").style.display = isBlocklistDisplay;
+    document.getElementById("src-file-wrap").style.display = isBlocklistBlock;
+    srcWrap.style.display = "block";
+
+    updateActiveGridBox(currentType);
+  }
+
+  function setButtonsIdle() {
+    cancelBtn = null;
+    addBtn.disabled = false;
+    removeBtn.disabled = false;
+    exportConfigBtn.disabled = false;
+    importConfigBtn.disabled = false;
+    addBtn.innerText = "Bulk Add";
+    removeBtn.innerText = "Bulk Remove";
+    importConfigBtn.innerText = "Import Config";
+    themeSync();
+  }
+
+  function setButtonsRunning(mode) {
+    if (mode === "remove") {
+      removeBtn.disabled = true;
+      addBtn.disabled = false;
+      addBtn.innerText = "Cancel";
+      cancelBtn = addBtn;
+      exportConfigBtn.disabled = true;
+      importConfigBtn.disabled = true;
     }
-
-    function renderSegmentedSummary(processed, skipped, failed, isRemoveMode = false) {
-        const neutralColor = isDarkTheme ? "#8892b0" : "#666666";
-        const finalActionColor = processed === 0 ? neutralColor : (isRemoveMode ? "#ff6b6b" : "#42b983");
-        const finalFailColor = failed === 0 ? neutralColor : "#ff6b6b";
-
-        status.style.color = "inherit";
-        status.innerHTML = `<span style="color: ${finalActionColor};">${isRemoveMode ? 'Removed' : 'Imported'}: ${processed}</span>  <span style="color: ${neutralColor};">Skipped: ${skipped}</span>  <span style="color: ${finalFailColor};">Failed: ${failed}</span>`;
+    else if (mode === "import-config") {
+      addBtn.disabled = true;
+      removeBtn.disabled = true;
+      exportConfigBtn.disabled = true;
+      importConfigBtn.disabled = false;
+      importConfigBtn.innerText = "Cancel";
+      cancelBtn = importConfigBtn;
     }
+    else {
+      addBtn.disabled = true;
+      removeBtn.disabled = false;
+      removeBtn.innerText = "Cancel";
+      cancelBtn = removeBtn;
+      exportConfigBtn.disabled = true;
+      importConfigBtn.disabled = true;
+    }
+    themeSync();
+  }
 
-    const hints = {
-        denylist: "example.com\n*.example.com\n||example.com^",
-        allowlist: "example.com\n*.example.com\n@@||example.com^",
-        rewrites: "example.com 1.1.1.1\n||example.com^$dnsrewrite=0.0.0.0\n1.1.1.1 example.com",
-        tld: ".xyz\nxyz\n*.xyz\n||xyz^",
-        blocklists: "Checking checkbox options will write live tokens here automatically."
+  function abortImport() {
+    if (!isImporting) return;
+    isAborted = true;
+    isImporting = false;
+    status.innerText = "Operation Cancelled";
+    status.style.color = "#ff6b6b";
+    importConfigBtn.innerText = "Import Config";
+    setButtonsIdle();
+  }
+
+  presetSel.addEventListener("change", uiToggle);
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+      flLbl.innerText = `📄 ${fileInput.files[0].name}`;
+      flLbl.style.borderColor = "#0070f3";
+      flLbl.style.color = "#0070f3";
+    }
+    else {
+      flLbl.innerText = "select file";
+      themeSync();
+    }
+  });
+
+  let isDragging = false;
+  let dragDistanceMoved = 0;
+  let startX, startY, startLeft, startTop;
+
+  floatingBtn.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+    isDragging = true;
+    dragDistanceMoved = 0;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const rect = floatingBtn.getBoundingClientRect();
+    startLeft = rect.left;
+    startTop = rect.top;
+
+    floatingBtn.style.bottom = "auto";
+    floatingBtn.style.right = "auto";
+    floatingBtn.style.left = startLeft + "px";
+    floatingBtn.style.top = startTop + "px";
+
+    floatingBtn.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  floatingBtn.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
+    dragDistanceMoved += Math.abs(deltaX) + Math.abs(deltaY);
+
+    floatingBtn.style.left = (startLeft + deltaX) + "px";
+    floatingBtn.style.top = (startTop + deltaY) + "px";
+  });
+
+  floatingBtn.addEventListener("pointerup", (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    floatingBtn.releasePointerCapture(e.pointerId);
+
+    if (dragDistanceMoved < 6) {
+      themeSync();
+      pnl.style.display = pnl.style.display === "block" ? "none" : "block";
+    }
+  });
+
+  floatingBtn.addEventListener("pointercancel", (e) => {
+    isDragging = false;
+    try {
+      floatingBtn.releasePointerCapture(e.pointerId);
+    }
+    catch (_) {}
+  });
+
+  floatingBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  document.addEventListener("pointerdown", (e) => {
+    if (pnl.style.display === "block") {
+      const clickedInsidePanel = pnl.contains(e.target);
+      const clickedButton = floatingBtn.contains(e.target) || e.target === floatingBtn;
+
+      if (!clickedInsidePanel && !clickedButton) {
+        pnl.style.display = "none";
+      }
+    }
+  });
+
+  pnl.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+  });
+
+  document.getElementById("mac-ctrl-close").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isAborted = true;
+    pnl.remove();
+    floatingBtn.remove();
+    styleSheet.remove();
+  });
+
+  document.getElementById("mac-ctrl-min").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    pnl.style.display = "none";
+  });
+
+  document.getElementById("mac-ctrl-max").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    pnl.classList.toggle("mac-fullscreen");
+  });
+
+  refreshBtn.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    themeSync();
+    fetchStats(profSel.value);
+    loadDynamicNextDNSBlocklists();
+  });
+
+  addBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (addBtn === cancelBtn) {
+      abortImport();
+      return;
+    }
+    if (isImporting || !profSel.value) return;
+    setButtonsRunning("add");
+    runImport("add");
+  });
+
+  removeBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (removeBtn === cancelBtn) {
+      abortImport();
+      return;
+    }
+    if (isImporting || !profSel.value) return;
+    setButtonsRunning("remove");
+    runImport("remove");
+  });
+
+  exportConfigBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isImporting || !profSel.value) return;
+    exportProfileConfig();
+  });
+
+  importConfigBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (importConfigBtn === cancelBtn) {
+      abortImport();
+      return;
+    }
+    if (isImporting || !profSel.value) return;
+    configFileInput.click();
+  });
+
+  configFileInput.addEventListener("change", async () => {
+    if (configFileInput.files.length > 0) {
+      try {
+        setStatusText("Reading configuration file...");
+        const fileText = await readTextFile(configFileInput.files[0]);
+        const parsedConfig = JSON.parse(fileText);
+
+        if (!parsedConfig || typeof parsedConfig !== 'object') {
+          throw new Error("Invalid configuration format.");
+        }
+
+        setButtonsRunning("import-config");
+        await importProfileConfig(parsedConfig);
+      }
+      catch (err) {
+        setStatusError("Error: Invalid config JSON file.");
+        setButtonsIdle();
+      }
+      finally {
+        configFileInput.value = "";
+      }
+    }
+  });
+
+  logToggleBtn.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isHidden = window.getComputedStyle(logDisplayArea).display === "none";
+
+    if (isHidden) {
+      logDisplayArea.style.display = "block";
+      logToggleBtn.innerText = "Hide Log";
+      logDisplayArea.scrollTop = logDisplayArea.scrollHeight;
+    }
+    else {
+      logDisplayArea.style.display = "none";
+      logToggleBtn.innerText = "Show Log";
+    }
+  });
+
+  function executeClipboardWrite(textValue, triggerBtnElement) {
+    if (!textValue) return;
+    navigator.clipboard.writeText(textValue).then(() => {
+      const preservedColor = triggerBtnElement.style.color;
+      triggerBtnElement.style.color = "#42b983";
+      setTimeout(() => {
+        triggerBtnElement.style.color = preservedColor;
+      }, 800);
+    }).catch(() => {});
+  }
+
+  document.getElementById("copy-url-btn").addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    executeClipboardWrite(urlInput.value, e.currentTarget);
+  });
+
+  document.getElementById("copy-input-btn").addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    executeClipboardWrite(txtInput.value, e.currentTarget);
+  });
+
+  logCopyBtn.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    executeClipboardWrite(logDisplayArea.innerText, e.currentTarget);
+  });
+
+  async function fetchListAndPopulate(endpoint, mapFn, syncTypeKey) {
+    const profId = profSel.value;
+    if (!profId) return;
+    setStatusText("Fetching live list data from cloud...");
+    try {
+      let typeKey = syncTypeKey;
+      if (syncTypeKey === "blocklists") typeKey = "blocklists";
+      if (syncTypeKey === "tld") typeKey = "tld";
+
+      const data = await getExisting(profId, typeKey);
+
+      typeSel.value = syncTypeKey;
+
+      if (data && data.length > 0) {
+        txtInput.value = data.map(mapFn).join('\n');
+        uiToggle();
+        if (syncTypeKey === "blocklists") {
+          syncTextareaToCheckboxes();
+        }
+        setStatusReady();
+      }
+      else {
+        txtInput.value = "";
+        uiToggle();
+        if (syncTypeKey === "blocklists") {
+          syncTextareaToCheckboxes();
+        }
+        setStatusText("List is empty.");
+      }
+    }
+    catch {
+      setStatusError("Failed to fetch target cloud list.");
+    }
+  }
+
+  document.getElementById("box-tlds").addEventListener("click", () => fetchListAndPopulate('security/tlds', i => i.id, 'tld'));
+  document.getElementById("box-blocklists").addEventListener("click", () => fetchListAndPopulate('privacy/blocklists', i => i.id, 'blocklists'));
+  document.getElementById("box-denylist").addEventListener("click", () => fetchListAndPopulate('denylist', i => i.id, 'denylist'));
+  document.getElementById("box-allowlist").addEventListener("click", () => fetchListAndPopulate('allowlist', i => i.id, 'allowlist'));
+  document.getElementById("box-rewrites").addEventListener("click", () => fetchListAndPopulate('rewrites', i => `${i.name} ${i.content}`, 'rewrites'));
+
+  async function fetchStats(profId) {
+    if (!profId) return;
+    const targets = {
+      tlds: 'security/tlds',
+      blocklists: 'privacy/blocklists',
+      denylist: 'denylist',
+      allowlist: 'allowlist',
+      rewrites: 'rewrites'
+    };
+    const boxes = {
+      tlds: stTlds,
+      blocklists: stBl,
+      denylist: stDl,
+      allowlist: stAl,
+      rewrites: stRw
     };
 
-    function uiToggle() {
-        const currentType = typeSel.value;
-        txtInput.placeholder = hints[currentType] || "";
+    stTlds.innerText = "...";
+    stBl.innerText = "...";
+    stDl.innerText = "...";
+    stAl.innerText = "...";
+    stRw.innerText = "...";
 
-        const isTld = currentType === 'tld';
-        const isBlocklists = currentType === 'blocklists';
-
-        pWrap.style.display = isTld ? "block" : "none";
-        blWrap.style.display = isBlocklists ? "grid" : "none";
-        blCtrlRow.style.display = isBlocklists ? "flex" : "none";
-
-        const isBlocklistDisplay = isBlocklists ? "none" : "flex";
-        const isBlocklistBlock = isBlocklists ? "none" : "block";
-
-        document.getElementById("src-url-lbl").style.display = isBlocklistDisplay;
-        urlInput.style.display = isBlocklistBlock;
-        document.getElementById("src-file-lbl").style.display = isBlocklistDisplay;
-        document.getElementById("src-file-wrap").style.display = isBlocklistBlock;
-        srcWrap.style.display = "block";
-
-        updateActiveGridBox(currentType);
+    for (const [k, endpoint] of Object.entries(targets)) {
+      try {
+        const res = await fetch(`https://api.nextdns.io/profiles/${profId}/${endpoint}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const count = json?.data ? json.data.length : 0;
+        const hasMore = json?.meta?.pagination?.cursor ? "+" : ""; // Append '+' if a paging cursor exists
+        boxes[k].innerText = `${count}${hasMore}`;
+      }
+      catch {
+        boxes[k].innerText = "err";
+      }
     }
+    updateActiveGridBox(typeSel.value);
+  }
 
-    function setButtonsIdle() {
-        cancelBtn = null;
-        addBtn.disabled = false;
-        removeBtn.disabled = false;
-        exportConfigBtn.disabled = false;
-        importConfigBtn.disabled = false;
-        addBtn.innerText = "Bulk Add";
-        removeBtn.innerText = "Bulk Remove";
-        importConfigBtn.innerText = "Import Config";
-        themeSync();
-    }
+  profSel.addEventListener("change", () => {
+    fetchStats(profSel.value);
+    updateEndpoints(profSel.value);
+    loadDynamicNextDNSBlocklists();
+  });
 
-    function setButtonsRunning(mode) {
-        if (mode === "remove") {
-            removeBtn.disabled = true;
-            addBtn.disabled = false;
-            addBtn.innerText = "Cancel";
-            cancelBtn = addBtn;
-            exportConfigBtn.disabled = true;
-            importConfigBtn.disabled = true;
-        } else if (mode === "import-config") {
-            addBtn.disabled = true;
-            removeBtn.disabled = true;
-            exportConfigBtn.disabled = true;
-            importConfigBtn.disabled = false;
-            importConfigBtn.innerText = "Cancel";
-            cancelBtn = importConfigBtn;
-        } else {
-            addBtn.disabled = true;
-            removeBtn.disabled = false;
-            removeBtn.innerText = "Cancel";
-            cancelBtn = removeBtn;
-            exportConfigBtn.disabled = true;
-            importConfigBtn.disabled = true;
+  async function initProfiles() {
+    try {
+      const res = await fetch('https://api.nextdns.io/profiles', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json'
         }
-        themeSync();
-    }
-
-    function abortImport() {
-        if (!isImporting) return;
-        isAborted = true;
-        isImporting = false;
-        status.innerText = "Operation Cancelled";
-        status.style.color = "#ff6b6b";
-        importConfigBtn.innerText = "Import Config";
-        setButtonsIdle();
-    }
-
-    presetSel.addEventListener("change", uiToggle);
-
-    fileInput.addEventListener("change", () => {
-        if (fileInput.files.length > 0) {
-            flLbl.innerText = `📄 ${fileInput.files[0].name}`;
-            flLbl.style.borderColor = "#0070f3"; flLbl.style.color = "#0070f3";
-        } else {
-            flLbl.innerText = "select file";
-            themeSync();
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      if (json?.data) {
+        profSel.innerHTML = '';
+        const activeId = window.location.pathname.split('/')[1] || '';
+        for (let i = 0; i < json.data.length; i++) {
+          const p = json.data[i];
+          const el = document.createElement('option');
+          el.value = p.id;
+          el.innerText = `${p.name || 'Unnamed'} (${p.id})`;
+          if (p.id === activeId) el.selected = true;
+          profSel.appendChild(el);
         }
-    });
-
-    let isDragging = false;
-    let dragDistanceMoved = 0;
-    let startX, startY, startLeft, startTop;
-
-    floatingBtn.addEventListener("pointerdown", (e) => {
-        if (e.button !== 0 && e.pointerType === 'mouse') return;
-
-        isDragging = true;
-        dragDistanceMoved = 0;
-        startX = e.clientX;
-        startY = e.clientY;
-
-        const rect = floatingBtn.getBoundingClientRect();
-        startLeft = rect.left;
-        startTop = rect.top;
-
-        floatingBtn.style.bottom = "auto";
-        floatingBtn.style.right = "auto";
-        floatingBtn.style.left = startLeft + "px";
-        floatingBtn.style.top = startTop + "px";
-
-        floatingBtn.setPointerCapture(e.pointerId);
-        e.preventDefault();
-    });
-
-    floatingBtn.addEventListener("pointermove", (e) => {
-        if (!isDragging) return;
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
-        dragDistanceMoved += Math.abs(deltaX) + Math.abs(deltaY);
-
-        floatingBtn.style.left = (startLeft + deltaX) + "px";
-        floatingBtn.style.top = (startTop + deltaY) + "px";
-    });
-
-    floatingBtn.addEventListener("pointerup", (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        floatingBtn.releasePointerCapture(e.pointerId);
-
-        if (dragDistanceMoved < 6) {
-            themeSync();
-            pnl.style.display = pnl.style.display === "block" ? "none" : "block";
-        }
-    });
-
-    floatingBtn.addEventListener("pointercancel", (e) => {
-        isDragging = false;
-        try { floatingBtn.releasePointerCapture(e.pointerId); } catch(_) {}
-    });
-
-    floatingBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
-    document.addEventListener("pointerdown", (e) => {
-        if (pnl.style.display === "block") {
-            const clickedInsidePanel = pnl.contains(e.target);
-            const clickedButton = floatingBtn.contains(e.target) || e.target === floatingBtn;
-
-            if (!clickedInsidePanel && !clickedButton) {
-                pnl.style.display = "none";
-            }
-        }
-    });
-
-    pnl.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
-
-    document.getElementById("mac-ctrl-close").addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        isAborted = true;
-        pnl.remove();
-        floatingBtn.remove();
-        styleSheet.remove();
-    });
-
-    document.getElementById("mac-ctrl-min").addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        pnl.style.display = "none";
-    });
-
-    document.getElementById("mac-ctrl-max").addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        pnl.classList.toggle("mac-fullscreen");
-    });
-
-    refreshBtn.addEventListener("mousedown", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        themeSync();
-        fetchStats(profSel.value);
-        loadDynamicNextDNSBlocklists();
-    });
-
-    addBtn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        if (addBtn === cancelBtn) { abortImport(); return; }
-        if (isImporting || !profSel.value) return;
-        setButtonsRunning("add");
-        runImport("add");
-    });
-
-    removeBtn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        if (removeBtn === cancelBtn) { abortImport(); return; }
-        if (isImporting || !profSel.value) return;
-        setButtonsRunning("remove");
-        runImport("remove");
-    });
-
-    exportConfigBtn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        if (isImporting || !profSel.value) return;
-        exportProfileConfig();
-    });
-
-    importConfigBtn.addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        if (importConfigBtn === cancelBtn) { abortImport(); return; }
-        if (isImporting || !profSel.value) return;
-        configFileInput.click();
-    });
-
-    configFileInput.addEventListener("change", async () => {
-        if (configFileInput.files.length > 0) {
-            try {
-                setStatusText("Reading configuration file...");
-                const fileText = await readTextFile(configFileInput.files[0]);
-                const parsedConfig = JSON.parse(fileText);
-
-                if (!parsedConfig || typeof parsedConfig !== 'object') {
-                    throw new Error("Invalid configuration format.");
-                }
-
-                setButtonsRunning("import-config");
-                await importProfileConfig(parsedConfig);
-            } catch (err) {
-                setStatusError("Error: Invalid config JSON file.");
-                setButtonsIdle();
-            } finally {
-                configFileInput.value = "";
-            }
-        }
-    });
-
-    logToggleBtn.addEventListener("mousedown", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        const isHidden = window.getComputedStyle(logDisplayArea).display === "none";
-
-        if (isHidden) {
-            logDisplayArea.style.display = "block";
-            logToggleBtn.innerText = "Hide Log";
-            logDisplayArea.scrollTop = logDisplayArea.scrollHeight;
-        } else {
-            logDisplayArea.style.display = "none";
-            logToggleBtn.innerText = "Show Log";
-        }
-    });
-
-    function executeClipboardWrite(textValue, triggerBtnElement) {
-        if (!textValue) return;
-        navigator.clipboard.writeText(textValue).then(() => {
-            const preservedColor = triggerBtnElement.style.color;
-            triggerBtnElement.style.color = "#42b983";
-            setTimeout(() => { triggerBtnElement.style.color = preservedColor; }, 800);
-        }).catch(() => {});
-    }
-
-    document.getElementById("copy-url-btn").addEventListener("mousedown", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        executeClipboardWrite(urlInput.value, e.currentTarget);
-    });
-
-    document.getElementById("copy-input-btn").addEventListener("mousedown", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        executeClipboardWrite(txtInput.value, e.currentTarget);
-    });
-
-    logCopyBtn.addEventListener("mousedown", (e) => {
-        e.preventDefault(); e.stopPropagation();
-        executeClipboardWrite(logDisplayArea.innerText, e.currentTarget);
-    });
-
-    async function fetchListAndPopulate(endpoint, mapFn, syncTypeKey) {
-        const profId = profSel.value;
-        if (!profId) return;
-        setStatusText("Fetching live list data from cloud...");
-        try {
-            let typeKey = syncTypeKey;
-            if (syncTypeKey === "blocklists") typeKey = "blocklists";
-            if (syncTypeKey === "tld") typeKey = "tld";
-
-            const data = await getExisting(profId, typeKey);
-
-            typeSel.value = syncTypeKey;
-
-            if (data && data.length > 0) {
-                txtInput.value = data.map(mapFn).join('\n');
-                uiToggle();
-                if (syncTypeKey === "blocklists") {
-                    syncTextareaToCheckboxes();
-                }
-                setStatusReady();
-            } else {
-                txtInput.value = "";
-                uiToggle();
-                if (syncTypeKey === "blocklists") {
-                    syncTextareaToCheckboxes();
-                }
-                setStatusText("List is empty.");
-            }
-        } catch {
-            setStatusError("Failed to fetch target cloud list.");
-        }
-    }
-
-    document.getElementById("box-tlds").addEventListener("click", () => fetchListAndPopulate('security/tlds', i => i.id, 'tld'));
-    document.getElementById("box-blocklists").addEventListener("click", () => fetchListAndPopulate('privacy/blocklists', i => i.id, 'blocklists'));
-    document.getElementById("box-denylist").addEventListener("click", () => fetchListAndPopulate('denylist', i => i.id, 'denylist'));
-    document.getElementById("box-allowlist").addEventListener("click", () => fetchListAndPopulate('allowlist', i => i.id, 'allowlist'));
-    document.getElementById("box-rewrites").addEventListener("click", () => fetchListAndPopulate('rewrites', i => `${i.name} ${i.content}`, 'rewrites'));
-
-    async function fetchStats(profId) {
-        if (!profId) return;
-        const targets = { tlds: 'security/tlds', blocklists: 'privacy/blocklists', denylist: 'denylist', allowlist: 'allowlist', rewrites: 'rewrites' };
-        const boxes = { tlds: stTlds, blocklists: stBl, denylist: stDl, allowlist: stAl, rewrites: stRw };
-
-        stTlds.innerText = "..."; stBl.innerText = "..."; stDl.innerText = "..."; stAl.innerText = "..."; stRw.innerText = "...";
-
-        for (const [k, endpoint] of Object.entries(targets)) {
-            try {
-                const res = await fetch(`https://api.nextdns.io/profiles/${profId}/${endpoint}`, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error();
-                const json = await res.json();
-                const count = json?.data ? json.data.length : 0;
-                const hasMore = json?.meta?.pagination?.cursor ? "+" : ""; // Append '+' if a paging cursor exists
-                boxes[k].innerText = `${count}${hasMore}`;
-            } catch { boxes[k].innerText = "err"; }
-        }
-        updateActiveGridBox(typeSel.value);
-    }
-
-    profSel.addEventListener("change", () => {
+        setStatusReady();
+        uiToggle();
         fetchStats(profSel.value);
         updateEndpoints(profSel.value);
         loadDynamicNextDNSBlocklists();
+        themeSync();
+      }
+    }
+    catch {
+      setStatusError("Auth Initialization Error");
+    }
+  }
+  setTimeout(() => {
+    initProfiles();
+    setupCopyListeners();
+  }, 1000);
+
+  function readTextFile(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = (e) => resolve(e.target.result);
+      r.onerror = () => reject();
+      r.readAsText(file);
+    });
+  }
+
+  function fetchListUrl(url) {
+    return new Promise((resolve, reject) => {
+      if (typeof GM_xmlhttpRequest === "undefined") return reject();
+      GM_xmlhttpRequest({
+        method: "GET",
+        url: url,
+        onload: (res) => (res.status >= 200 && res.status < 300) ? resolve(res.responseText) : reject(),
+        onerror: () => reject()
+      });
+    });
+  }
+
+  async function sendRequest(url, method, payload, attemptCount = 1) {
+    if (isAborted) return;
+
+    while (globalRateLimitLock) {
+      await new Promise(r => setTimeout(r, 200));
+      if (isAborted) return;
+    }
+
+    const res = await fetch(url, {
+      method: method,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: payload ? JSON.stringify(payload) : undefined
     });
 
-    async function initProfiles() {
-        try {
-            const res = await fetch('https://api.nextdns.io/profiles', { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
-            if (!res.ok) throw new Error();
-            const json = await res.json();
-            if (json?.data) {
-                profSel.innerHTML = '';
-                const activeId = window.location.pathname.split('/')[1] || '';
-                for (let i = 0; i < json.data.length; i++) {
-                    const p = json.data[i];
-                    const el = document.createElement('option');
-                    el.value = p.id; el.innerText = `${p.name || 'Unnamed'} (${p.id})`;
-                    if (p.id === activeId) el.selected = true;
-                    profSel.appendChild(el);
-                }
-                setStatusReady();
-                uiToggle();
-                fetchStats(profSel.value);
-                updateEndpoints(profSel.value);
-                loadDynamicNextDNSBlocklists();
-                themeSync();
+    if (res.status === 429) {
+      if (globalRateLimitLock) {
+        return await sendRequest(url, method, payload, attemptCount);
+      }
+
+      globalRateLimitLock = true;
+      let retryAfterHeader = parseInt(res.headers.get("Retry-After"), 10);
+      let totalDelaySeconds = !isNaN(retryAfterHeader) && retryAfterHeader > 0 ? retryAfterHeader : 15;
+
+      const targetEndTime = Date.now() + (totalDelaySeconds * 1000);
+
+      while (Date.now() < targetEndTime) {
+        if (isAborted) {
+          globalRateLimitLock = false;
+          return;
+        }
+        let remainingSecs = Math.max(1, Math.ceil((targetEndTime - Date.now()) / 1000));
+        setStatusText(`⚠️ Rate limited!\nPausing for ${remainingSecs}s...`);
+        await new Promise(r => setTimeout(r, 250));
+      }
+
+      globalRateLimitLock = false;
+      attemptCount++;
+      const retryLabel = getOrdinalAttemptText(attemptCount);
+      setStatusText(`trying again ${retryLabel} time.`);
+      await new Promise(r => setTimeout(r, 250));
+
+      return await sendRequest(url, method, payload, attemptCount);
+    }
+    if (!res.ok) throw new Error();
+  }
+
+  function runStrictParser(text, type) {
+    const lines = text.split('\n');
+    let valid = [];
+    let failedValidationCount = 0;
+
+    if (type === 'blocklists') {
+      const officialSet = new Set(cachedAvailableBlocklists.map(b => b.id.toLowerCase()));
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line || line[0] === '#' || line[0] === '!') continue;
+        let idToken = line.toLowerCase();
+        if (officialSet.size === 0 || officialSet.has(idToken)) {
+          valid.push({
+            raw: line,
+            id: idToken
+          });
+        }
+        else {
+          failedValidationCount++;
+          importLogs.push(`[SKIPPED (UNSUPPORTED NEXTDNS ID)] ${line}`);
+        }
+      }
+      return {
+        valid,
+        failedValidationCount
+      };
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line || line[0] === '#' || line[0] === '!' || line.startsWith('//') || (line[0] === '[' && line[line.length - 1] === ']')) continue;
+
+      if (type === 'denylist' || type === 'allowlist' || type === 'tld') {
+        if (RULES[type].test(line)) {
+          let token = line.replace(/^@@\|\||^\|\||^@@|^\*\\\.|\*\./i, '').replace(/\^$/, '').toLowerCase();
+          if (type === 'tld' && token[0] === '.') token = token.substring(1);
+          valid.push({
+            raw: line,
+            id: token
+          });
+        }
+        else {
+          failedValidationCount++;
+          importLogs.push(`[FAILED (SYNTAX)] ${line}`);
+        }
+      }
+      else if (type === 'rewrites') {
+        let m1 = line.match(RULES.rewrites.domIp);
+        let m2 = line.match(RULES.rewrites.ipDom);
+        let m3 = line.match(RULES.rewrites.adblock);
+
+        if (m1) {
+          valid.push({
+            domain: m1[2].replace(/^(\*\.|\.)/, '').toLowerCase(),
+            ip: m1[3]
+          });
+        }
+        else if (m2) {
+          valid.push({
+            domain: m2[3].replace(/^(\*\.|\.)/, '').toLowerCase(),
+            ip: m2[1]
+          });
+        }
+        else if (m3) {
+          valid.push({
+            domain: m3[1].toLowerCase(),
+            ip: m3[2]
+          });
+        }
+        else {
+          failedValidationCount++;
+          importLogs.push(`[FAILED (SYNTAX)] ${line}`);
+        }
+      }
+    }
+    return {
+      valid,
+      failedValidationCount
+    };
+  }
+
+  /**
+   * PAGINATED GET IMPLEMENTATION (NextDNS API Documentation Format)
+   * Recursively fetches list pages using the `cursor` param until cursor evaluates to null.
+   */
+  async function getExisting(profId, type) {
+    let endpoint = type === 'tld' ? 'security/tlds' : (type === 'blocklists' ? 'privacy/blocklists' : type);
+    let url = `https://api.nextdns.io/profiles/${profId}/${endpoint}`;
+    let allData = [];
+    let cursor = null;
+
+    do {
+      let requestUrl = url;
+      if (cursor) {
+        requestUrl += `?cursor=${encodeURIComponent(cursor)}`;
+      }
+
+      try {
+        const res = await fetch(requestUrl, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        if (!res.ok) {
+          if (res.status === 429) {
+            let retryAfter = parseInt(res.headers.get("Retry-After"), 10) || 5;
+            await new Promise(r => setTimeout(r, retryAfter * 1000));
+            continue;
+          }
+          break;
+        }
+        const json = await res.json();
+        if (json?.data) {
+          allData = allData.concat(json.data);
+        }
+        cursor = json?.meta?.pagination?.cursor || null;
+      }
+      catch {
+        break;
+      }
+      await new Promise(r => setTimeout(r, 100));
+    } while (cursor);
+
+    return allData;
+  }
+
+  /**
+   * CONFIGURATION BACKUP EXPORTER
+   * Recursively reads Allow/Deny Lists, TLDs, Blocklists and DNS Rewrites into a backup file.
+   */
+  async function exportProfileConfig() {
+    const profId = profSel.value;
+    if (!profId) {
+      setStatusError("Error: Select a profile first.");
+      return;
+    }
+
+    setStatusText("Exporting configuration... Please wait.");
+
+    const configKeys = {
+      denylist: 'denylist',
+      allowlist: 'allowlist',
+      tlds: 'tld',
+      blocklists: 'blocklists',
+      rewrites: 'rewrites'
+    };
+
+    let exportedConfig = {
+      version: 1.0,
+      profileId: profId,
+      timestamp: new Date().toISOString(),
+      denylist: [],
+      allowlist: [],
+      tlds: [],
+      blocklists: [],
+      rewrites: []
+    };
+
+    try {
+      for (const [key, type] of Object.entries(configKeys)) {
+        setStatusText(`Exporting: ${key}...`);
+        const items = await getExisting(profId, type);
+
+        if (key === 'denylist' || key === 'allowlist' || key === 'tlds') {
+          exportedConfig[key] = items.map(item => ({
+            id: item.id,
+            active: item.active !== false
+          }));
+        }
+        else if (key === 'blocklists') {
+          exportedConfig[key] = items.map(item => ({
+            id: item.id
+          }));
+        }
+        else if (key === 'rewrites') {
+          exportedConfig[key] = items.map(item => ({
+            name: item.name,
+            content: item.content
+          }));
+        }
+      }
+
+      const profileNameOpt = profSel.options[profSel.selectedIndex];
+      const profileName = profileNameOpt ? profileNameOpt.innerText.split(' (')[0].replace(/[^a-z0-9]/gi, '_').toLowerCase() : profId;
+      const filename = `nextdns_config_${profileName}_${profId}.json`;
+      const blob = new Blob([JSON.stringify(exportedConfig, null, 2)], {
+        type: 'application/json'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setStatusReady();
+      status.innerText = "Config Exported Successfully!";
+      status.style.color = "#42b983";
+    }
+    catch (err) {
+      setStatusError("Failed to export complete configuration.");
+    }
+  }
+
+  /**
+   * CONFIGURATION RESTORE IMPORTER
+   * Validates and imports full profile configurations, skipping duplicate cloud entries safely.
+   */
+  async function importProfileConfig(config) {
+    const profId = profSel.value;
+    if (!profId) {
+      setStatusError("Error: Select a profile first.");
+      return;
+    }
+
+    isImporting = true;
+    isAborted = false;
+    importLogs = [];
+    globalRateLimitLock = false;
+
+    logToggleBtn.style.display = "none";
+    logCopyBtn.style.display = "none";
+    logDisplayArea.style.display = "none";
+    logToggleBtn.innerText = "Show Log";
+    themeSync();
+
+    let totalAdded = 0;
+    let totalSkipped = 0;
+    let totalFailed = 0;
+
+    const categories = [{
+        key: 'denylist',
+        type: 'denylist',
+        endpoint: 'denylist'
+      },
+      {
+        key: 'allowlist',
+        type: 'allowlist',
+        endpoint: 'allowlist'
+      },
+      {
+        key: 'tlds',
+        type: 'tld',
+        endpoint: 'security/tlds'
+      },
+      {
+        key: 'blocklists',
+        type: 'blocklists',
+        endpoint: 'privacy/blocklists'
+      },
+      {
+        key: 'rewrites',
+        type: 'rewrites',
+        endpoint: 'rewrites'
+      }
+    ];
+
+    try {
+      for (const cat of categories) {
+        if (isAborted) break;
+
+        const list = config[cat.key];
+        if (!Array.isArray(list) || list.length === 0) continue;
+
+        setStatusText(`Syncing ${cat.key}...`);
+        const existing = await getExisting(profId, cat.type);
+        const cacheMap = new Set();
+        for (let i = 0; i < existing.length; i++) {
+          let item = existing[i];
+          let key = cat.type === 'rewrites' ? `${item.name.toLowerCase().trim()}:::${item.content}` : item.id.toLowerCase().trim();
+          cacheMap.add(key);
+        }
+
+        let toAdd = [];
+        for (let item of list) {
+          if (cat.type === 'rewrites') {
+            if (!item.name || !item.content) continue;
+            let key = `${item.name.toLowerCase().trim()}:::${item.content}`;
+            if (!cacheMap.has(key)) {
+              toAdd.push({
+                domain: item.name,
+                ip: item.content
+              });
             }
-        } catch { setStatusError("Auth Initialization Error"); }
-    }
-    setTimeout(() => {
-        initProfiles();
-        setupCopyListeners();
-    }, 1000);
+            else {
+              totalSkipped++;
+              importLogs.push(`[SKIPPED (DUPLICATE)] Rewrite ${item.name} -> ${item.content}`);
+            }
+          }
+          else {
+            let itemVal = item.id || item;
+            if (typeof itemVal !== 'string') continue;
+            let lookupKey = itemVal.toLowerCase().trim();
+            if (!cacheMap.has(lookupKey)) {
+              toAdd.push({
+                id: itemVal
+              });
+            }
+            else {
+              totalSkipped++;
+              importLogs.push(`[SKIPPED (DUPLICATE)] ${cat.key}: ${itemVal}`);
+            }
+          }
+        }
 
-    function readTextFile(file) {
-        return new Promise((resolve, reject) => {
-            const r = new FileReader();
-            r.onload = (e) => resolve(e.target.result);
-            r.onerror = () => reject();
-            r.readAsText(file);
-        });
-    }
+        if (toAdd.length === 0) continue;
 
-    function fetchListUrl(url) {
-        return new Promise((resolve, reject) => {
-            if (typeof GM_xmlhttpRequest === "undefined") return reject();
-            GM_xmlhttpRequest({
-                method: "GET", url: url,
-                onload: (res) => (res.status >= 200 && res.status < 300) ? resolve(res.responseText) : reject(),
-                onerror: () => reject()
-            });
-        });
-    }
+        let endpointBase = `https://api.nextdns.io/profiles/${profId}/${cat.endpoint}`;
 
-    async function sendRequest(url, method, payload, attemptCount = 1) {
-        if (isAborted) return;
+        for (let i = 0; i < toAdd.length; i++) {
+          if (isAborted) break;
 
-        while (globalRateLimitLock) {
+          let item = toAdd[i];
+          let label = cat.type === 'rewrites' ? item.domain : item.id;
+          let targetUrl = endpointBase;
+          let method = "POST";
+          let payload = cat.type === 'rewrites' ? {
+            name: item.domain,
+            content: item.ip
+          } : {
+            id: item.id
+          };
+
+          if (!globalRateLimitLock) {
+            setStatusText(`Importing ${cat.key}: (${i + 1}/${toAdd.length})\nProcessing [ ${label.substring(0, 22)} ]\nAdded: ${totalAdded} Skipped: ${totalSkipped} Failed: ${totalFailed}`);
+          }
+
+          try {
+            await sendRequest(targetUrl, method, payload);
+            if (!isAborted) {
+              totalAdded++;
+              importLogs.push(`[IMPORTED ${cat.key.toUpperCase()}] ${label}`);
+            }
+          }
+          catch {
+            totalFailed++;
+            importLogs.push(`[FAILED ${cat.key.toUpperCase()} (API ERROR)] ${label}`);
+          }
+
+          if (!isAborted && i < toAdd.length - 1) {
             await new Promise(r => setTimeout(r, 200));
-            if (isAborted) return;
+          }
         }
+      }
 
-        const res = await fetch(url, {
-            method: method, credentials: 'include',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: payload ? JSON.stringify(payload) : undefined
+      isImporting = false;
+      if (isAborted) {
+        status.innerText = "Operation Cancelled";
+        status.style.color = "#ff6b6b";
+      }
+      else {
+        status.style.color = "inherit";
+        status.innerHTML = `<span style="color: #42b983;">Imported: ${totalAdded}</span>  <span style="color: ${isDarkTheme ? "#8892b0" : "#666666"};">Skipped: ${totalSkipped}</span>  <span style="color: ${totalFailed === 0 ? (isDarkTheme ? "#8892b0" : "#666666") : "#ff6b6b"};">Failed: ${totalFailed}</span>`;
+
+        logDisplayArea.innerText = importLogs.join('\n');
+        logToggleBtn.style.display = "block";
+        logCopyBtn.style.display = "inline-flex";
+      }
+      setButtonsIdle();
+      fetchStats(profId);
+    }
+    catch (err) {
+      isImporting = false;
+      setStatusError("Failed to import configuration fully.");
+      setButtonsIdle();
+    }
+  }
+
+  async function runImport(mode) {
+    const profId = profSel.value;
+    const type = typeSel.value;
+    const preset = presetSel.value;
+    const isRemoveMode = mode === "remove";
+    const isBlocklists = type === "blocklists";
+
+    isImporting = true;
+    isAborted = false;
+    importLogs = [];
+    globalRateLimitLock = false;
+
+    logToggleBtn.style.display = "none";
+    logCopyBtn.style.display = "none";
+    logDisplayArea.style.display = "none";
+    logToggleBtn.innerText = "Show Log";
+    themeSync();
+
+    if (isBlocklists) {
+      let selectedBls = [];
+      const checkedBoxes = pnl.querySelectorAll("#bl-wrap input[type='checkbox']:checked");
+      for (let i = 0; i < checkedBoxes.length; i++) {
+        selectedBls.push(checkedBoxes[i].value);
+      }
+      let textRows = txtInput.value.split('\n').map(r => r.trim()).filter(Boolean);
+      let unified = Array.from(new Set([...selectedBls, ...textRows]));
+      txtInput.value = unified.join('\n');
+    }
+
+    let combinedContentPieces = [];
+
+    if (!isBlocklists && !isRemoveMode && type === 'tld' && preset === 'hagezi-adblock') {
+      try {
+        setStatusText("Downloading Preset...");
+        let presetData = await fetchListUrl(HAGEZI_URL);
+        combinedContentPieces.push(presetData);
+      }
+      catch {
+        importLogs.push("[ERROR] Failed to fetch Hagezi TLD preset remote map.");
+      }
+    }
+
+    const cleanUrl = urlInput.value.trim();
+    if (!isBlocklists && cleanUrl !== "") {
+      try {
+        setStatusText("Downloading Remote URL stream...");
+        let urlData = await fetchListUrl(cleanUrl);
+        combinedContentPieces.push(urlData);
+      }
+      catch {
+        importLogs.push(`[ERROR] Failed to download URL stream: ${cleanUrl}`);
+      }
+    }
+
+    if (!isBlocklists && fileInput.files.length > 0) {
+      try {
+        setStatusText("Reading localized upload file...");
+        let fileData = await readTextFile(fileInput.files[0]);
+        combinedContentPieces.push(fileData);
+      }
+      catch {
+        importLogs.push("[ERROR] Failed to read chosen local text file stream.");
+      }
+    }
+
+    if (txtInput.value.trim() !== "") combinedContentPieces.push(txtInput.value);
+
+    let content = combinedContentPieces.join('\n');
+
+    if (content.trim() === "") {
+      isImporting = false;
+      setStatusError("Error: No source input provided.");
+      setButtonsIdle();
+      return;
+    }
+
+    if (isAborted) {
+      isImporting = false;
+      status.innerText = "Operation Cancelled";
+      status.style.color = "#ff6b6b";
+      setButtonsIdle();
+      return;
+    }
+
+    setStatusText("Analyzing Whitelist Rules...");
+    const parsed = runStrictParser(content, type);
+    let valid = parsed.valid;
+    let failed = parsed.failedValidationCount;
+    let skipped = 0;
+    let processedCounter = 0;
+
+    let deduplicatedValid = [];
+    let seenKeys = new Set();
+    for (let i = 0; i < valid.length; i++) {
+      let item = valid[i];
+      let itemKey = type === 'rewrites' ? `${item.domain}:::${item.ip}` : item.id;
+      if (!seenKeys.has(itemKey)) {
+        seenKeys.add(itemKey);
+        deduplicatedValid.push(item);
+      }
+      else {
+        skipped++;
+      }
+    }
+
+    if (deduplicatedValid.length === 0) {
+      isImporting = false;
+      renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
+      logDisplayArea.innerText = importLogs.join('\n');
+      logToggleBtn.style.display = "block";
+      logCopyBtn.style.display = "inline-flex";
+      setButtonsIdle();
+      fetchStats(profId);
+      return;
+    }
+
+    setStatusText("Synchronizing data maps...");
+    const rawCache = await getExisting(profId, type);
+    const cacheMap = new Map();
+    for (let i = 0; i < rawCache.length; i++) {
+      let item = rawCache[i];
+      let key = type === 'rewrites' ? item.name.toLowerCase().trim() : item.id.toLowerCase().trim();
+      cacheMap.set(key, item.id);
+    }
+
+    let queue = [];
+    for (let i = 0; i < deduplicatedValid.length; i++) {
+      let item = deduplicatedValid[i];
+      let lookupKey = type === 'rewrites' ? item.domain : item.id;
+      const exists = cacheMap.has(lookupKey);
+
+      if (isRemoveMode) {
+        if (exists) queue.push({
+          ...item,
+          cloudId: cacheMap.get(lookupKey)
         });
-
-        if (res.status === 429) {
-            if (globalRateLimitLock) {
-                return await sendRequest(url, method, payload, attemptCount);
-            }
-
-            globalRateLimitLock = true;
-            let retryAfterHeader = parseInt(res.headers.get("Retry-After"), 10);
-            let totalDelaySeconds = !isNaN(retryAfterHeader) && retryAfterHeader > 0 ? retryAfterHeader : 15;
-
-            const targetEndTime = Date.now() + (totalDelaySeconds * 1000);
-
-            while (Date.now() < targetEndTime) {
-                if (isAborted) {
-                    globalRateLimitLock = false;
-                    return;
-                }
-                let remainingSecs = Math.max(1, Math.ceil((targetEndTime - Date.now()) / 1000));
-                setStatusText(`⚠️ Rate limited!\nPausing for ${remainingSecs}s...`);
-                await new Promise(r => setTimeout(r, 250));
-            }
-
-            globalRateLimitLock = false;
-            attemptCount++;
-            const retryLabel = getOrdinalAttemptText(attemptCount);
-            setStatusText(`trying again ${retryLabel} time.`);
-            await new Promise(r => setTimeout(r, 250));
-
-            return await sendRequest(url, method, payload, attemptCount);
+        else {
+          skipped++;
+          importLogs.push(`[SKIPPED (NOT FOUND)] ${lookupKey}`);
         }
-        if (!res.ok) throw new Error();
+      }
+      else {
+        if (exists) {
+          skipped++;
+          importLogs.push(`[SKIPPED (DUPLICATE)] ${lookupKey}`);
+        }
+        else queue.push(item);
+      }
     }
 
-    function runStrictParser(text, type) {
-        const lines = text.split('\n');
-        let valid = [];
-        let failedValidationCount = 0;
-
-        if (type === 'blocklists') {
-            const officialSet = new Set(cachedAvailableBlocklists.map(b => b.id.toLowerCase()));
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (!line || line[0] === '#' || line[0] === '!') continue;
-                let idToken = line.toLowerCase();
-                if (officialSet.size === 0 || officialSet.has(idToken)) {
-                    valid.push({ raw: line, id: idToken });
-                } else {
-                    failedValidationCount++;
-                    importLogs.push(`[SKIPPED (UNSUPPORTED NEXTDNS ID)] ${line}`);
-                }
-            }
-            return { valid, failedValidationCount };
-        }
-
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim();
-            if (!line || line[0] === '#' || line[0] === '!' || line.startsWith('//') || (line[0] === '[' && line[line.length - 1] === ']')) continue;
-
-            if (type === 'denylist' || type === 'allowlist' || type === 'tld') {
-                if (RULES[type].test(line)) {
-                    let token = line.replace(/^@@\|\||^\|\||^@@|^\*\\\.|\*\./i, '').replace(/\^$/, '').toLowerCase();
-                    if (type === 'tld' && token[0] === '.') token = token.substring(1);
-                    valid.push({ raw: line, id: token });
-                } else {
-                    failedValidationCount++;
-                    importLogs.push(`[FAILED (SYNTAX)] ${line}`);
-                }
-            }
-            else if (type === 'rewrites') {
-                let m1 = line.match(RULES.rewrites.domIp);
-                let m2 = line.match(RULES.rewrites.ipDom);
-                let m3 = line.match(RULES.rewrites.adblock);
-
-                if (m1) {
-                    valid.push({ domain: m1[2].replace(/^(\*\.|\.)/, '').toLowerCase(), ip: m1[3] });
-                } else if (m2) {
-                    valid.push({ domain: m2[3].replace(/^(\*\.|\.)/, '').toLowerCase(), ip: m2[1] });
-                } else if (m3) {
-                    valid.push({ domain: m3[1].toLowerCase(), ip: m3[2] });
-                } else {
-                    failedValidationCount++;
-                    importLogs.push(`[FAILED (SYNTAX)] ${line}`);
-                }
-            }
-        }
-        return { valid, failedValidationCount };
+    if (queue.length === 0) {
+      isImporting = false;
+      renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
+      logDisplayArea.innerText = importLogs.join('\n');
+      logToggleBtn.style.display = "block";
+      logCopyBtn.style.display = "inline-flex";
+      setButtonsIdle();
+      fetchStats(profId);
+      return;
     }
 
-    /**
-     * PAGINATED GET IMPLEMENTATION (NextDNS API Documentation Format)
-     * Recursively fetches list pages using the `cursor` param until cursor evaluates to null.
-     */
-    async function getExisting(profId, type) {
-        let endpoint = type === 'tld' ? 'security/tlds' : (type === 'blocklists' ? 'privacy/blocklists' : type);
-        let url = `https://api.nextdns.io/profiles/${profId}/${endpoint}`;
-        let allData = [];
-        let cursor = null;
+    let endpointBase = `https://api.nextdns.io/profiles/${profId}/${type === 'tld' ? 'security/tlds' : (type === 'blocklists' ? 'privacy/blocklists' : type)}`;
 
-        do {
-            let requestUrl = url;
-            if (cursor) {
-                requestUrl += `?cursor=${encodeURIComponent(cursor)}`;
-            }
+    for (let i = 0; i < queue.length; i++) {
+      if (isAborted) break;
 
-            try {
-                const res = await fetch(requestUrl, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
-                if (!res.ok) {
-                    if (res.status === 429) {
-                        let retryAfter = parseInt(res.headers.get("Retry-After"), 10) || 5;
-                        await new Promise(r => setTimeout(r, retryAfter * 1000));
-                        continue;
-                    }
-                    break;
-                }
-                const json = await res.json();
-                if (json?.data) {
-                    allData = allData.concat(json.data);
-                }
-                cursor = json?.meta?.pagination?.cursor || null;
-            } catch {
-                break;
-            }
-            await new Promise(r => setTimeout(r, 100));
-        } while (cursor);
+      let item = queue[i];
+      let label = type === 'rewrites' ? item.domain : item.id;
+      let targetUrl = endpointBase;
+      let method = "POST";
+      let payload = null;
 
-        return allData;
-    }
-
-    /**
-     * CONFIGURATION BACKUP EXPORTER
-     * Recursively reads Allow/Deny Lists, TLDs, Blocklists and DNS Rewrites into a backup file.
-     */
-    async function exportProfileConfig() {
-        const profId = profSel.value;
-        if (!profId) {
-            setStatusError("Error: Select a profile first.");
-            return;
-        }
-
-        setStatusText("Exporting configuration... Please wait.");
-
-        const configKeys = {
-            denylist: 'denylist',
-            allowlist: 'allowlist',
-            tlds: 'tld',
-            blocklists: 'blocklists',
-            rewrites: 'rewrites'
+      if (isRemoveMode) {
+        method = "DELETE";
+        targetUrl = `${endpointBase}/${encodeURIComponent(item.cloudId || item.id)}`;
+      }
+      else {
+        payload = type === 'rewrites' ? {
+          name: item.domain,
+          content: item.ip
+        } : {
+          id: item.id
         };
+      }
 
-        let exportedConfig = {
-            version: 1.0,
-            profileId: profId,
-            timestamp: new Date().toISOString(),
-            denylist: [],
-            allowlist: [],
-            tlds: [],
-            blocklists: [],
-            rewrites: []
-        };
+      if (!globalRateLimitLock) {
+        setStatusText("Queue: (" + (i + 1) + "/" + queue.length + ")\nProcessing [ ." + label.substring(0, 22) + " ]\n" + (isRemoveMode ? 'Removed' : 'Imported') + ": " + processedCounter + " Skipped: " + skipped + " Failed: " + failed);
+      }
 
-        try {
-            for (const [key, type] of Object.entries(configKeys)) {
-                setStatusText(`Exporting: ${key}...`);
-                const items = await getExisting(profId, type);
-
-                if (key === 'denylist' || key === 'allowlist' || key === 'tlds') {
-                    exportedConfig[key] = items.map(item => ({ id: item.id, active: item.active !== false }));
-                } else if (key === 'blocklists') {
-                    exportedConfig[key] = items.map(item => ({ id: item.id }));
-                } else if (key === 'rewrites') {
-                    exportedConfig[key] = items.map(item => ({ name: item.name, content: item.content }));
-                }
-            }
-
-            const profileNameOpt = profSel.options[profSel.selectedIndex];
-            const profileName = profileNameOpt ? profileNameOpt.innerText.split(' (')[0].replace(/[^a-z0-9]/gi, '_').toLowerCase() : profId;
-            const filename = `nextdns_config_${profileName}_${profId}.json`;
-            const blob = new Blob([JSON.stringify(exportedConfig, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            setStatusReady();
-            status.innerText = "Config Exported Successfully!";
-            status.style.color = "#42b983";
-        } catch (err) {
-            setStatusError("Failed to export complete configuration.");
+      try {
+        await sendRequest(targetUrl, method, payload);
+        if (!isAborted) {
+          processedCounter++;
+          importLogs.push(`[${isRemoveMode ? 'REMOVED' : 'IMPORTED'}] ${label}`);
         }
+      }
+      catch {
+        failed++;
+        importLogs.push(`[FAILED (API ERROR)] ${label}`);
+      }
+
+      if (!isAborted && i < queue.length - 1) {
+        await new Promise(r => setTimeout(r, 200));
+      }
     }
 
-    /**
-     * CONFIGURATION RESTORE IMPORTER
-     * Validates and imports full profile configurations, skipping duplicate cloud entries safely.
-     */
-    async function importProfileConfig(config) {
-        const profId = profSel.value;
-        if (!profId) {
-            setStatusError("Error: Select a profile first.");
-            return;
-        }
-
-        isImporting = true;
-        isAborted = false;
-        importLogs = [];
-        globalRateLimitLock = false;
-
-        logToggleBtn.style.display = "none";
-        logCopyBtn.style.display = "none";
-        logDisplayArea.style.display = "none";
-        logToggleBtn.innerText = "Show Log";
-        themeSync();
-
-        let totalAdded = 0;
-        let totalSkipped = 0;
-        let totalFailed = 0;
-
-        const categories = [
-            { key: 'denylist', type: 'denylist', endpoint: 'denylist' },
-            { key: 'allowlist', type: 'allowlist', endpoint: 'allowlist' },
-            { key: 'tlds', type: 'tld', endpoint: 'security/tlds' },
-            { key: 'blocklists', type: 'blocklists', endpoint: 'privacy/blocklists' },
-            { key: 'rewrites', type: 'rewrites', endpoint: 'rewrites' }
-        ];
-
-        try {
-            for (const cat of categories) {
-                if (isAborted) break;
-
-                const list = config[cat.key];
-                if (!Array.isArray(list) || list.length === 0) continue;
-
-                setStatusText(`Syncing ${cat.key}...`);
-                const existing = await getExisting(profId, cat.type);
-                const cacheMap = new Set();
-                for (let i = 0; i < existing.length; i++) {
-                    let item = existing[i];
-                    let key = cat.type === 'rewrites' ? `${item.name.toLowerCase().trim()}:::${item.content}` : item.id.toLowerCase().trim();
-                    cacheMap.add(key);
-                }
-
-                let toAdd = [];
-                for (let item of list) {
-                    if (cat.type === 'rewrites') {
-                        if (!item.name || !item.content) continue;
-                        let key = `${item.name.toLowerCase().trim()}:::${item.content}`;
-                        if (!cacheMap.has(key)) {
-                            toAdd.push({ domain: item.name, ip: item.content });
-                        } else {
-                            totalSkipped++;
-                            importLogs.push(`[SKIPPED (DUPLICATE)] Rewrite ${item.name} -> ${item.content}`);
-                        }
-                    } else {
-                        let itemVal = item.id || item;
-                        if (typeof itemVal !== 'string') continue;
-                        let lookupKey = itemVal.toLowerCase().trim();
-                        if (!cacheMap.has(lookupKey)) {
-                            toAdd.push({ id: itemVal });
-                        } else {
-                            totalSkipped++;
-                            importLogs.push(`[SKIPPED (DUPLICATE)] ${cat.key}: ${itemVal}`);
-                        }
-                    }
-                }
-
-                if (toAdd.length === 0) continue;
-
-                let endpointBase = `https://api.nextdns.io/profiles/${profId}/${cat.endpoint}`;
-
-                for (let i = 0; i < toAdd.length; i++) {
-                    if (isAborted) break;
-
-                    let item = toAdd[i];
-                    let label = cat.type === 'rewrites' ? item.domain : item.id;
-                    let targetUrl = endpointBase;
-                    let method = "POST";
-                    let payload = cat.type === 'rewrites' ? { name: item.domain, content: item.ip } : { id: item.id };
-
-                    if (!globalRateLimitLock) {
-                        setStatusText(`Importing ${cat.key}: (${i + 1}/${toAdd.length})\nProcessing [ ${label.substring(0, 22)} ]\nAdded: ${totalAdded} Skipped: ${totalSkipped} Failed: ${totalFailed}`);
-                    }
-
-                    try {
-                        await sendRequest(targetUrl, method, payload);
-                        if (!isAborted) {
-                            totalAdded++;
-                            importLogs.push(`[IMPORTED ${cat.key.toUpperCase()}] ${label}`);
-                        }
-                    } catch {
-                        totalFailed++;
-                        importLogs.push(`[FAILED ${cat.key.toUpperCase()} (API ERROR)] ${label}`);
-                    }
-
-                    if (!isAborted && i < toAdd.length - 1) {
-                        await new Promise(r => setTimeout(r, 200));
-                    }
-                }
-            }
-
-            isImporting = false;
-            if (isAborted) {
-                status.innerText = "Operation Cancelled";
-                status.style.color = "#ff6b6b";
-            } else {
-                status.style.color = "inherit";
-                status.innerHTML = `<span style="color: #42b983;">Imported: ${totalAdded}</span>  <span style="color: ${isDarkTheme ? "#8892b0" : "#666666"};">Skipped: ${totalSkipped}</span>  <span style="color: ${totalFailed === 0 ? (isDarkTheme ? "#8892b0" : "#666666") : "#ff6b6b"};">Failed: ${totalFailed}</span>`;
-
-                logDisplayArea.innerText = importLogs.join('\n');
-                logToggleBtn.style.display = "block";
-                logCopyBtn.style.display = "inline-flex";
-            }
-            setButtonsIdle();
-            fetchStats(profId);
-        } catch (err) {
-            isImporting = false;
-            setStatusError("Failed to import configuration fully.");
-            setButtonsIdle();
-        }
+    isImporting = false;
+    if (isAborted) {
+      status.innerText = "Operation Cancelled";
+      status.style.color = "#ff6b6b";
     }
-
-    async function runImport(mode) {
-        const profId = profSel.value;
-        const type = typeSel.value;
-        const preset = presetSel.value;
-        const isRemoveMode = mode === "remove";
-        const isBlocklists = type === "blocklists";
-
-        isImporting = true;
-        isAborted = false;
-        importLogs = [];
-        globalRateLimitLock = false;
-
-        logToggleBtn.style.display = "none";
-        logCopyBtn.style.display = "none";
-        logDisplayArea.style.display = "none";
-        logToggleBtn.innerText = "Show Log";
-        themeSync();
-
-        if (isBlocklists) {
-            let selectedBls = [];
-            const checkedBoxes = pnl.querySelectorAll("#bl-wrap input[type='checkbox']:checked");
-            for(let i=0; i<checkedBoxes.length; i++) {
-                selectedBls.push(checkedBoxes[i].value);
-            }
-            let textRows = txtInput.value.split('\n').map(r => r.trim()).filter(Boolean);
-            let unified = Array.from(new Set([...selectedBls, ...textRows]));
-            txtInput.value = unified.join('\n');
-        }
-
-        let combinedContentPieces = [];
-
-        if (!isBlocklists && !isRemoveMode && type === 'tld' && preset === 'hagezi-adblock') {
-            try {
-                setStatusText("Downloading Preset...");
-                let presetData = await fetchListUrl(HAGEZI_URL);
-                combinedContentPieces.push(presetData);
-            } catch {
-                importLogs.push("[ERROR] Failed to fetch Hagezi TLD preset remote map.");
-            }
-        }
-
-        const cleanUrl = urlInput.value.trim();
-        if (!isBlocklists && cleanUrl !== "") {
-            try {
-                setStatusText("Downloading Remote URL stream...");
-                let urlData = await fetchListUrl(cleanUrl);
-                combinedContentPieces.push(urlData);
-            } catch {
-                importLogs.push(`[ERROR] Failed to download URL stream: ${cleanUrl}`);
-            }
-        }
-
-        if (!isBlocklists && fileInput.files.length > 0) {
-            try {
-                setStatusText("Reading localized upload file...");
-                let fileData = await readTextFile(fileInput.files[0]);
-                combinedContentPieces.push(fileData);
-            } catch {
-                importLogs.push("[ERROR] Failed to read chosen local text file stream.");
-            }
-        }
-
-        if (txtInput.value.trim() !== "") combinedContentPieces.push(txtInput.value);
-
-        let content = combinedContentPieces.join('\n');
-
-        if (content.trim() === "") {
-            isImporting = false;
-            setStatusError("Error: No source input provided.");
-            setButtonsIdle();
-            return;
-        }
-
-        if (isAborted) {
-            isImporting = false;
-            status.innerText = "Operation Cancelled";
-            status.style.color = "#ff6b6b";
-            setButtonsIdle();
-            return;
-        }
-
-        setStatusText("Analyzing Whitelist Rules...");
-        const parsed = runStrictParser(content, type);
-        let valid = parsed.valid;
-        let failed = parsed.failedValidationCount;
-        let skipped = 0;
-        let processedCounter = 0;
-
-        let deduplicatedValid = [];
-        let seenKeys = new Set();
-        for (let i = 0; i < valid.length; i++) {
-            let item = valid[i];
-            let itemKey = type === 'rewrites' ? `${item.domain}:::${item.ip}` : item.id;
-            if (!seenKeys.has(itemKey)) {
-                seenKeys.add(itemKey);
-                deduplicatedValid.push(item);
-            } else {
-                skipped++;
-            }
-        }
-
-        if (deduplicatedValid.length === 0) {
-            isImporting = false;
-            renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
-            logDisplayArea.innerText = importLogs.join('\n');
-            logToggleBtn.style.display = "block";
-            logCopyBtn.style.display = "inline-flex";
-            setButtonsIdle();
-            fetchStats(profId); return;
-        }
-
-        setStatusText("Synchronizing data maps...");
-        const rawCache = await getExisting(profId, type);
-        const cacheMap = new Map();
-        for (let i = 0; i < rawCache.length; i++) {
-            let item = rawCache[i];
-            let key = type === 'rewrites' ? item.name.toLowerCase().trim() : item.id.toLowerCase().trim();
-            cacheMap.set(key, item.id);
-        }
-
-        let queue = [];
-        for (let i = 0; i < deduplicatedValid.length; i++) {
-            let item = deduplicatedValid[i];
-            let lookupKey = type === 'rewrites' ? item.domain : item.id;
-            const exists = cacheMap.has(lookupKey);
-
-            if (isRemoveMode) {
-                if (exists) queue.push({ ...item, cloudId: cacheMap.get(lookupKey) });
-                else { skipped++; importLogs.push(`[SKIPPED (NOT FOUND)] ${lookupKey}`); }
-            } else {
-                if (exists) { skipped++; importLogs.push(`[SKIPPED (DUPLICATE)] ${lookupKey}`); }
-                else queue.push(item);
-            }
-        }
-
-        if (queue.length === 0) {
-            isImporting = false;
-            renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
-            logDisplayArea.innerText = importLogs.join('\n');
-            logToggleBtn.style.display = "block";
-            logCopyBtn.style.display = "inline-flex";
-            setButtonsIdle();
-            fetchStats(profId); return;
-        }
-
-        let endpointBase = `https://api.nextdns.io/profiles/${profId}/${type === 'tld' ? 'security/tlds' : (type === 'blocklists' ? 'privacy/blocklists' : type)}`;
-
-        for (let i = 0; i < queue.length; i++) {
-            if (isAborted) break;
-
-            let item = queue[i];
-            let label = type === 'rewrites' ? item.domain : item.id;
-            let targetUrl = endpointBase;
-            let method = "POST";
-            let payload = null;
-
-            if (isRemoveMode) {
-                method = "DELETE";
-                targetUrl = `${endpointBase}/${encodeURIComponent(item.cloudId || item.id)}`;
-            } else {
-                payload = type === 'rewrites' ? { name: item.domain, content: item.ip } : { id: item.id };
-            }
-
-            if (!globalRateLimitLock) {
-                setStatusText("Queue: (" + (i + 1) + "/" + queue.length + ")\nProcessing [ ." + label.substring(0, 22) + " ]\n" + (isRemoveMode ? 'Removed' : 'Imported') + ": " + processedCounter + " Skipped: " + skipped + " Failed: " + failed);
-            }
-
-            try {
-                await sendRequest(targetUrl, method, payload);
-                if (!isAborted) {
-                    processedCounter++;
-                    importLogs.push(`[${isRemoveMode ? 'REMOVED' : 'IMPORTED'}] ${label}`);
-                }
-            } catch {
-                failed++;
-                importLogs.push(`[FAILED (API ERROR)] ${label}`);
-            }
-
-            if (!isAborted && i < queue.length - 1) {
-                await new Promise(r => setTimeout(r, 200));
-            }
-        }
-
-        isImporting = false;
-        if (isAborted) {
-            status.innerText = "Operation Cancelled";
-            status.style.color = "#ff6b6b";
-        } else {
-            renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
-            txtInput.value = ""; urlInput.value = ""; fileInput.value = "";
-            flLbl.innerText = "select file";
-            const checkboxes = pnl.querySelectorAll("#bl-wrap input[type='checkbox']");
-            for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = false;
-            logDisplayArea.innerText = importLogs.join('\n');
-            logToggleBtn.style.display = "block";
-            logCopyBtn.style.display = "inline-flex";
-        }
-        setButtonsIdle();
-        uiToggle();
-        fetchStats(profId);
+    else {
+      renderSegmentedSummary(processedCounter, skipped, failed, isRemoveMode);
+      txtInput.value = "";
+      urlInput.value = "";
+      fileInput.value = "";
+      flLbl.innerText = "select file";
+      const checkboxes = pnl.querySelectorAll("#bl-wrap input[type='checkbox']");
+      for (let i = 0; i < checkboxes.length; i++) checkboxes[i].checked = false;
+      logDisplayArea.innerText = importLogs.join('\n');
+      logToggleBtn.style.display = "block";
+      logCopyBtn.style.display = "inline-flex";
     }
+    setButtonsIdle();
+    uiToggle();
+    fetchStats(profId);
+  }
 })();

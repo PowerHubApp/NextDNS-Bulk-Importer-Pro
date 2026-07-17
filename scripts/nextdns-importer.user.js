@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NextDNS Bulk Importer Pro
 // @namespace    https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
-// @version      1.16
+// @version      1.17
 // @description  Bulk import automation tool designed for advanced NextDNS users. Easily manage TLDs, blocklists, denylists, allowlists, and rewrites with a responsive, clean interface.
 // @author       PowerHub
 // @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC05NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE9LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC08LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjUtMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcwIDExOC42IDY1LjYgMTg0LjMgODEuMSA1LjUgMS41IDExLjQgMS44IDE2LjcgNC4xIDQuNiAyLjUgNC44IDcuNyA1IDEyLjRsLjUgNi44di0uMWMuOSAxMyAuOSAyNi4zLS40IDM5LjNNVDcyMi41IDM1OGMtNzQuOS0xNi4zLTE0NS45LTQ5LjItMjA4LjctOTIuOS0xNS42IDExLjUtMzIuMyAyMS40LTQ5LjEgMzEtNTEuMiAyOC42LTEwNi4yIDUxLjItMTYzLjcgNjMuNi00LjcgODguNiAxOS4zIDE3OC40IDY2LjkgMjUzLjIgMzcwIDU4LjQgODYuMyAxMDguOSAxNDMuNyAxNDcuM0M1ODYgNzExLjggNjQ3IDY0Mi41IDY4My45IDU2MS43YzI5LjEtNjMuNSA0MS45LTEzNC4xIDM4LjYtMjAzLjciIHN0eWxlPSJmaWxsOiNmZmYiLz4KPC9zdmc+
@@ -63,6 +63,20 @@
             transition: border-color 0.15s ease, background-color 0.15s ease;
         }
 
+        /* Resizing handles styling */
+        .pnl-resize-l {
+            position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+            cursor: w-resize; z-index: 2147483645;
+        }
+        .pnl-resize-t {
+            position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+            cursor: n-resize; z-index: 2147483645;
+        }
+        .pnl-resize-tl {
+            position: absolute; top: 0; left: 0; width: 14px; height: 14px;
+            cursor: nwse-resize; z-index: 2147483646;
+        }
+
         #ndns-imp-pnl.mac-fullscreen {
             max-width: 100% !important;
             max-height: 100% !important;
@@ -78,7 +92,7 @@
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
         }
 
-        .mac-controls { display: flex; gap: 8px; position: absolute; top: 12px; left: 14px; cursor: pointer; }
+        .mac-controls { display: flex; gap: 8px; position: absolute; top: 12px; left: 14px; cursor: pointer; z-index: 2147483646; }
         .mac-dot { width: 12px; height: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
         .mac-dot svg { width: 6px; height: 6px; opacity: 0; transition: opacity 0.15s ease; fill: rgba(0,0,0,0.5); }
         .mac-controls:hover .mac-dot svg { opacity: 1; }
@@ -213,7 +227,7 @@
 
     const floatingBtn = document.createElement("button");
     floatingBtn.id = "ndns-imp-btn";
-    floatingBtn.title = "NextDNS Bulk Importer Pro v1.20";
+    floatingBtn.title = "NextDNS Bulk Importer Pro v1.21";
     floatingBtn.innerHTML = `
        <svg viewBox="0 0 24 24">
            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM11 7h2v2h-2V7zm0 4h2v6h-2v-6z"/>
@@ -404,6 +418,9 @@
     configFileInput.style.display = "none";
     document.body.appendChild(configFileInput);
 
+    // Initialize custom resize triggers
+    makeResizable(pnl);
+
     toggleEndpointsBtn.addEventListener("click", (e) => {
         e.preventDefault(); e.stopPropagation();
         const isCurrentlyHidden = window.getComputedStyle(setupPanel).display === "none";
@@ -415,6 +432,75 @@
             toggleEndpointsBtn.innerText = "Show";
         }
     });
+
+    /**
+     * WINDOW RESIZING ENGINE
+     * Implements edge-bound resizers. Calculates offsets to scale container towards top-left.
+     */
+    function makeResizable(targetPnl) {
+        const resizerL = document.createElement('div');
+        resizerL.className = 'pnl-resize-l';
+        const resizerT = document.createElement('div');
+        resizerT.className = 'pnl-resize-t';
+        const resizerTL = document.createElement('div');
+        resizerTL.className = 'pnl-resize-tl';
+
+        targetPnl.appendChild(resizerL);
+        targetPnl.appendChild(resizerT);
+        targetPnl.appendChild(resizerTL);
+
+        let isResizing = false;
+        let activeHandle = null;
+        let startWidth, startHeight, startX, startY;
+
+        function startResize(e, handle) {
+            e.preventDefault();
+            e.stopPropagation();
+            isResizing = true;
+            activeHandle = handle;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = targetPnl.getBoundingClientRect();
+            startWidth = rect.width;
+            startHeight = rect.height;
+            handle.setPointerCapture(e.pointerId);
+        }
+
+        function resize(e) {
+            if (!isResizing) return;
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            targetPnl.style.maxWidth = 'none';
+            targetPnl.style.maxHeight = 'none';
+
+            if (activeHandle === resizerL || activeHandle === resizerTL) {
+                const newWidth = Math.max(320, Math.min(window.innerWidth - 48, startWidth - deltaX));
+                targetPnl.style.width = newWidth + 'px';
+            }
+            if (activeHandle === resizerT || activeHandle === resizerTL) {
+                const newHeight = Math.max(350, Math.min(window.innerHeight - 100, startHeight - deltaY));
+                targetPnl.style.height = newHeight + 'px';
+            }
+        }
+
+        function stopResize(e) {
+            if (!isResizing) return;
+            isResizing = false;
+            if (activeHandle) {
+                try { activeHandle.releasePointerCapture(e.pointerId); } catch (_) {}
+            }
+            activeHandle = null;
+        }
+
+        resizerL.addEventListener('pointerdown', (e) => startResize(e, resizerL));
+        resizerT.addEventListener('pointerdown', (e) => startResize(e, resizerT));
+        resizerTL.addEventListener('pointerdown', (e) => startResize(e, resizerTL));
+
+        window.addEventListener('pointermove', resize);
+        window.addEventListener('pointerup', stopResize);
+        window.addEventListener('pointercancel', stopResize);
+    }
 
     function updateEndpoints(profileId) {
         if (!profileId) {

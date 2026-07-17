@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NextDNS Bulk Importer Pro
 // @namespace    https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
-// @version      1.17
+// @version      1.19
 // @description  Bulk import automation tool designed for advanced NextDNS users. Easily manage TLDs, blocklists, denylists, allowlists, and rewrites with a responsive, clean interface.
 // @author       PowerHub
 // @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC05NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE9LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC08LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjUtMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcwIDExOC42IDY1LjYgMTg0LjMgODEuMSA1LjUgMS41IDExLjQgMS44IDE2LjcgNC4xIDQuNiAyLjUgNC44IDcuNyA1IDEyLjRsLjUgNi44di0uMWMuOSAxMyAuOSAyNi4zLS40IDM5LjNNVDcyMi41IDM1OGMtNzQuOS0xNi4zLTE0NS45LTQ5LjItMjA4LjctOTIuOS0xNS42IDExLjUtMzIuMyAyMS40LTQ5LjEgMzEtNTEuMiAyOC42LTEwNi4yIDUxLjItMTYzLjcgNjMuNi00LjcgODguNiAxOS4zIDE3OC40IDY2LjkgMjUzLjIgMzcwIDU4LjQgODYuMyAxMDguOSAxNDMuNyAxNDcuM0M1ODYgNzExLjggNjQ3IDY0Mi41IDY4My45IDU2MS43YzI5LjEtNjMuNSA0MS45LTEzNC4xIDM4LjYtMjAzLjciIHN0eWxlPSJmaWxsOiNmZmYiLz4KPC9zdmc+
@@ -110,9 +110,11 @@
         #ndns-imp-refresh:active { transform: rotate(45deg); }
 
         .imp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; padding: 10px; border-radius: 7px; border: 1px solid transparent; }
-        .imp-box { text-align: center; padding: 4px 0; cursor: pointer; border-radius: 5px; transition: background 0.15s ease; }
-        .imp-box:hover { background: rgba(0, 112, 243, 0.08) !important; }
+        .imp-box { text-align: center; padding: 6px 0; cursor: pointer; border-radius: 6px; border: 2px solid transparent; transition: all 0.15s ease; }
+        .imp-box:hover { background: rgba(0, 112, 243, 0.08) !important; border-color: rgba(0, 112, 243, 0.2); }
+        .imp-box.active { background: rgba(0, 112, 243, 0.15) !important; border-color: #0070f3 !important; box-shadow: 0 0 8px rgba(0, 112, 243, 0.25); }
         .imp-val { font-size: 15px; font-weight: 700; color: #0070f3; font-family: monospace; text-decoration: underline; }
+        .imp-box.active .imp-val { text-decoration: none; color: #0070f3 !important; }
         .imp-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
 
         .lbl-row-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -773,6 +775,19 @@
         syncCheckboxesToTextarea();
     });
 
+    function updateActiveGridBox(currentType) {
+        pnl.querySelectorAll(".imp-box").forEach(box => box.classList.remove("active"));
+        let targetBoxId = "";
+        if (currentType === "tld") targetBoxId = "box-tlds";
+        else if (currentType === "blocklists") targetBoxId = "box-blocklists";
+        else if (currentType === "denylist") targetBoxId = "box-denylist";
+        else if (currentType === "allowlist") targetBoxId = "box-allowlist";
+        else if (currentType === "rewrites") targetBoxId = "box-rewrites";
+
+        const targetBox = document.getElementById(targetBoxId);
+        if (targetBox) targetBox.classList.add("active");
+    }
+
     function themeSync() {
         const firstMatch = window.getComputedStyle(document.body).color.match(/\d+/);
         isDarkTheme = firstMatch && parseInt(firstMatch[0], 10) > 140;
@@ -899,6 +914,8 @@
         document.getElementById("src-file-lbl").style.display = isBlocklistDisplay;
         document.getElementById("src-file-wrap").style.display = isBlocklistBlock;
         srcWrap.style.display = "block";
+
+        updateActiveGridBox(currentType);
     }
 
     function setButtonsIdle() {
@@ -1200,6 +1217,7 @@
                 boxes[k].innerText = `${count}${hasMore}`;
             } catch { boxes[k].innerText = "err"; }
         }
+        updateActiveGridBox(typeSel.value);
     }
 
     profSel.addEventListener("change", () => {

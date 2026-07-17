@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NextDNS Bulk Importer Pro
 // @namespace    https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro
-// @version      1.15
+// @version      1.16
 // @description  Bulk import automation tool designed for advanced NextDNS users. Easily manage TLDs, blocklists, denylists, allowlists, and rewrites with a responsive, clean interface.
 // @author       PowerHub
 // @icon         data:image/png;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzA1ZiIvPgogIDxwYXRoIGQ9Ik0zODEuMSA2MDIuNmMtMzMuOC05NC41LTU0LjYtMTE3LjMtNTcuNi0xODEuNS0xLTE1LjMtMS0zMC42LjEtNDUuOSA0OS41LTkuOSA5Ni44LTI4LjkgMTQwLjktNTMuMiAxNi45LTkuNSAzMy41LTE9LjQgNDktMzEuMSAzNS45IDI2IDc1LjQgNDcgMTE2LjggNjIuNy04My4xIDgyLjgtMTY1LjggMTY2LjItMjQ5LjIgMjQ5bTI4NS0yMzdDNTc3LjggNDU0LjIgNDg5LjIgNTQyLjQgNDAwLjkgNjMxYzMwLjUgMzkuOSA2Ny41IDc1LjMgMTEwLjEgMTAyLjIgNjQuOC00Mi4xIDExOS0xMDEuMiAxNTIuNS0xNzEgMjguMi01OC4yIDQwLjEtMTIzLjggMzYuNC0xODguMy0xMS40LTIuNC0yMi43LTUtMzMuOC08LjNtNzUuOSAzNC43Yy0yLjkgNzItMjIuNyAxNDMuNS01OC40IDIwNi4yLTM2LjUgNjQuMy04OC4xIDExOS45LTE0OSAxNjEuOC0yLjggMi4xLTUuOSAzLjktOC45IDUuNy0yLjEgMS4yLTQuMSAyLjUtNi4xIDMuOWwtNiAzLjhjLTIuMyAxLjUtNC4xIDAtNC4xIDAtNDkuMS0zMC4zLTkyLTcwLTEyNy45LTExNS00OS02MS45LTgyLjctMTM2LjEtOTQuOS0yMTQuMi01LjMtMzMuMS02LjgtNjYuOC01LTEwMC4zLS4xLTUgMy45LTkuNCA4LjgtOS45IDU1LjYtMTEuMyAxMDguOS0zMi40IDE1OC43LTU5LjYgMjEuNC0xMiA0Mi43LTI0LjUgNjUtMzkuNiAwIDAgMy0yLjcgNS44LS4xIDUuOCA1LjIgMTIuNSA5LjMgMTguOSAxMy43IDU2LjMgMzcwIDExOC42IDY1LjYgMTg0LjMgODEuMSA1LjUgMS41IDExLjQgMS44IDE2LjcgNC4xIDQuNiAyLjUgNC44IDcuNyA1IDEyLjRsLjUgNi44di0uMWMuOSAxMyAuOSAyNi4zLS40IDM5LjNNVDcyMi41IDM1OGMtNzQuOS0xNi4zLTE0NS45LTQ5LjItMjA4LjctOTIuOS0xNS42IDExLjUtMzIuMyAyMS40LTQ5LjEgMzEtNTEuMiAyOC42LTEwNi4yIDUxLjItMTYzLjcgNjMuNi00LjcgODguNiAxOS4zIDE3OC40IDY2LjkgMjUzLjIgMzcwIDU4LjQgODYuMyAxMDguOSAxNDMuNyAxNDcuM0M1ODYgNzExLjggNjQ3IDY0Mi41IDY4My45IDU2MS43YzI5LjEtNjMuNSA0MS45LTEzNC4xIDM4LjYtMjAzLjciIHN0eWxlPSJmaWxsOiNmZmYiLz4KPC9zdmc+
@@ -154,6 +154,12 @@
         .imp-row button:disabled { cursor: not-allowed; }
         #imp-start-add, #imp-start-remove { background: #0070f3; color: #fff; }
         #imp-start-add:hover:not(:disabled), #imp-start-remove:hover:not(:disabled) { background: #1a80f5; }
+
+        #config-export-btn { background: #10b981; color: #fff; }
+        #config-export-btn:hover:not(:disabled) { background: #059669; }
+        #config-import-btn { background: #f59e0b; color: #fff; }
+        #config-import-btn:hover:not(:disabled) { background: #d97706; }
+
         #ndns-imp-pnl span, #ndns-imp-pnl div { transition: color 0.2s ease; }
         #imp-status { margin-top: 12px; font-size: 13px; text-align: center; font-weight: 500; line-height: 1.4; white-space: pre-line; }
 
@@ -207,7 +213,7 @@
 
     const floatingBtn = document.createElement("button");
     floatingBtn.id = "ndns-imp-btn";
-    floatingBtn.title = "NextDNS Bulk Importer Pro v1.22";
+    floatingBtn.title = "NextDNS Bulk Importer Pro v1.20";
     floatingBtn.innerHTML = `
        <svg viewBox="0 0 24 24">
            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM11 7h2v2h-2V7zm0 4h2v6h-2v-6z"/>
@@ -331,6 +337,10 @@
                 <button id="imp-start-add">Bulk Add</button>
                 <button id="imp-start-remove">Bulk Remove</button>
             </div>
+            <div class="imp-row" style="margin-top: 8px;">
+                <button id="config-export-btn" title="Backup profile configurations to JSON">Export Config</button>
+                <button id="config-import-btn" title="Restore profile configurations from JSON">Import Config</button>
+            </div>
             <div id="imp-status">Initializing...</div>
             <div class="log-btn-container">
                 <button id="log-toggle-btn">Show Log</button>
@@ -359,6 +369,8 @@
     const refreshBtn = document.getElementById("ndns-imp-refresh");
     const addBtn = document.getElementById("imp-start-add");
     const removeBtn = document.getElementById("imp-start-remove");
+    const exportConfigBtn = document.getElementById("config-export-btn");
+    const importConfigBtn = document.getElementById("config-import-btn");
     let cancelBtn = null;
 
     const stTlds = document.getElementById("st-tlds");
@@ -377,13 +389,20 @@
     const setupDoh = document.getElementById("setup-doh");
     const setupDoh3 = document.getElementById("setup-doh3");
     const setupAnydoh = document.getElementById("setup-anydoh");
-	const setupUltradoh = document.getElementById("setup-ultradoh");
+    const setupUltradoh = document.getElementById("setup-ultradoh");
     const setupDot = document.getElementById("setup-dot");
     const setupPanel = document.getElementById("setup-panel");
     const toggleEndpointsBtn = document.getElementById("toggle-endpoints-btn");
 
     let isDarkTheme = false;
     let isSyncingTokens = false;
+
+    // Dynamically created hidden element for importing config files
+    const configFileInput = document.createElement("input");
+    configFileInput.type = "file";
+    configFileInput.accept = ".json";
+    configFileInput.style.display = "none";
+    document.body.appendChild(configFileInput);
 
     toggleEndpointsBtn.addEventListener("click", (e) => {
         e.preventDefault(); e.stopPropagation();
@@ -405,7 +424,7 @@
             setupDoh.innerText = "https://dns.nextdns.io/...";
             setupDoh3.innerText = "https://doh3.dns.nextdns.io/...";
             setupAnydoh.innerText = "https://anycast.dns.nextdns.io/...";
-			setupUltradoh.innerText = "https://ultralow.dns.nextdns.io/...";
+            setupUltradoh.innerText = "https://ultralow.dns.nextdns.io/...";
             setupDot.innerText = "...dns.nextdns.io";
             return;
         }
@@ -719,7 +738,7 @@
             }
         }
 
-        [addBtn, removeBtn].forEach((btn) => {
+        [addBtn, removeBtn, exportConfigBtn, importConfigBtn].forEach((btn) => {
             if (btn === cancelBtn) {
                 btn.style.background = "#ff6b6b";
                 btn.style.color = "#ffffff";
@@ -800,8 +819,11 @@
         cancelBtn = null;
         addBtn.disabled = false;
         removeBtn.disabled = false;
+        exportConfigBtn.disabled = false;
+        importConfigBtn.disabled = false;
         addBtn.innerText = "Bulk Add";
         removeBtn.innerText = "Bulk Remove";
+        importConfigBtn.innerText = "Import Config";
         themeSync();
     }
 
@@ -811,11 +833,22 @@
             addBtn.disabled = false;
             addBtn.innerText = "Cancel";
             cancelBtn = addBtn;
+            exportConfigBtn.disabled = true;
+            importConfigBtn.disabled = true;
+        } else if (mode === "import-config") {
+            addBtn.disabled = true;
+            removeBtn.disabled = true;
+            exportConfigBtn.disabled = true;
+            importConfigBtn.disabled = false;
+            importConfigBtn.innerText = "Cancel";
+            cancelBtn = importConfigBtn;
         } else {
             addBtn.disabled = true;
             removeBtn.disabled = false;
             removeBtn.innerText = "Cancel";
             cancelBtn = removeBtn;
+            exportConfigBtn.disabled = true;
+            importConfigBtn.disabled = true;
         }
         themeSync();
     }
@@ -826,6 +859,7 @@
         isImporting = false;
         status.innerText = "Operation Cancelled";
         status.style.color = "#ff6b6b";
+        importConfigBtn.innerText = "Import Config";
         setButtonsIdle();
     }
 
@@ -951,6 +985,41 @@
         runImport("remove");
     });
 
+    exportConfigBtn.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (isImporting || !profSel.value) return;
+        exportProfileConfig();
+    });
+
+    importConfigBtn.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (importConfigBtn === cancelBtn) { abortImport(); return; }
+        if (isImporting || !profSel.value) return;
+        configFileInput.click();
+    });
+
+    configFileInput.addEventListener("change", async () => {
+        if (configFileInput.files.length > 0) {
+            try {
+                setStatusText("Reading configuration file...");
+                const fileText = await readTextFile(configFileInput.files[0]);
+                const parsedConfig = JSON.parse(fileText);
+
+                if (!parsedConfig || typeof parsedConfig !== 'object') {
+                    throw new Error("Invalid configuration format.");
+                }
+
+                setButtonsRunning("import-config");
+                await importProfileConfig(parsedConfig);
+            } catch (err) {
+                setStatusError("Error: Invalid config JSON file.");
+                setButtonsIdle();
+            } finally {
+                configFileInput.value = "";
+            }
+        }
+    });
+
     logToggleBtn.addEventListener("mousedown", (e) => {
         e.preventDefault(); e.stopPropagation();
         const isHidden = window.getComputedStyle(logDisplayArea).display === "none";
@@ -994,14 +1063,16 @@
         if (!profId) return;
         setStatusText("Fetching live list data from cloud...");
         try {
-            const res = await fetch(`https://api.nextdns.io/profiles/${profId}/${endpoint}`, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
-            if (!res.ok) throw new Error();
-            const json = await res.json();
+            let typeKey = syncTypeKey;
+            if (syncTypeKey === "blocklists") typeKey = "blocklists";
+            if (syncTypeKey === "tld") typeKey = "tld";
+
+            const data = await getExisting(profId, typeKey);
 
             typeSel.value = syncTypeKey;
 
-            if (json?.data && json.data.length > 0) {
-                txtInput.value = json.data.map(mapFn).join('\n');
+            if (data && data.length > 0) {
+                txtInput.value = data.map(mapFn).join('\n');
                 uiToggle();
                 if (syncTypeKey === "blocklists") {
                     syncTextareaToCheckboxes();
@@ -1038,7 +1109,9 @@
                 const res = await fetch(`https://api.nextdns.io/profiles/${profId}/${endpoint}`, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
                 if (!res.ok) throw new Error();
                 const json = await res.json();
-                boxes[k].innerText = json?.data ? json.data.length : "0";
+                const count = json?.data ? json.data.length : 0;
+                const hasMore = json?.meta?.pagination?.cursor ? "+" : ""; // Append '+' if a paging cursor exists
+                boxes[k].innerText = `${count}${hasMore}`;
             } catch { boxes[k].innerText = "err"; }
         }
     }
@@ -1097,6 +1170,7 @@
             });
         });
     }
+
     async function sendRequest(url, method, payload, attemptCount = 1) {
         if (isAborted) return;
 
@@ -1198,15 +1272,240 @@
         return { valid, failedValidationCount };
     }
 
+    /**
+     * PAGINATED GET IMPLEMENTATION (NextDNS API Documentation Format)
+     * Recursively fetches list pages using the `cursor` param until cursor evaluates to null.
+     */
     async function getExisting(profId, type) {
         let endpoint = type === 'tld' ? 'security/tlds' : (type === 'blocklists' ? 'privacy/blocklists' : type);
         let url = `https://api.nextdns.io/profiles/${profId}/${endpoint}`;
+        let allData = [];
+        let cursor = null;
+
+        do {
+            let requestUrl = url;
+            if (cursor) {
+                requestUrl += `?cursor=${encodeURIComponent(cursor)}`;
+            }
+
+            try {
+                const res = await fetch(requestUrl, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
+                if (!res.ok) {
+                    if (res.status === 429) {
+                        let retryAfter = parseInt(res.headers.get("Retry-After"), 10) || 5;
+                        await new Promise(r => setTimeout(r, retryAfter * 1000));
+                        continue;
+                    }
+                    break;
+                }
+                const json = await res.json();
+                if (json?.data) {
+                    allData = allData.concat(json.data);
+                }
+                cursor = json?.meta?.pagination?.cursor || null;
+            } catch {
+                break;
+            }
+            await new Promise(r => setTimeout(r, 100));
+        } while (cursor);
+
+        return allData;
+    }
+
+    /**
+     * CONFIGURATION BACKUP EXPORTER
+     * Recursively reads Allow/Deny Lists, TLDs, Blocklists and DNS Rewrites into a backup file.
+     */
+    async function exportProfileConfig() {
+        const profId = profSel.value;
+        if (!profId) {
+            setStatusError("Error: Select a profile first.");
+            return;
+        }
+
+        setStatusText("Exporting configuration... Please wait.");
+
+        const configKeys = {
+            denylist: 'denylist',
+            allowlist: 'allowlist',
+            tlds: 'tld',
+            blocklists: 'blocklists',
+            rewrites: 'rewrites'
+        };
+
+        let exportedConfig = {
+            version: 1.0,
+            profileId: profId,
+            timestamp: new Date().toISOString(),
+            denylist: [],
+            allowlist: [],
+            tlds: [],
+            blocklists: [],
+            rewrites: []
+        };
+
         try {
-            const res = await fetch(url, { method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' } });
-            if (!res.ok) return [];
-            const json = await res.json();
-            return json?.data || [];
-        } catch { return []; }
+            for (const [key, type] of Object.entries(configKeys)) {
+                setStatusText(`Exporting: ${key}...`);
+                const items = await getExisting(profId, type);
+
+                if (key === 'denylist' || key === 'allowlist' || key === 'tlds') {
+                    exportedConfig[key] = items.map(item => ({ id: item.id, active: item.active !== false }));
+                } else if (key === 'blocklists') {
+                    exportedConfig[key] = items.map(item => ({ id: item.id }));
+                } else if (key === 'rewrites') {
+                    exportedConfig[key] = items.map(item => ({ name: item.name, content: item.content }));
+                }
+            }
+
+            const profileNameOpt = profSel.options[profSel.selectedIndex];
+            const profileName = profileNameOpt ? profileNameOpt.innerText.split(' (')[0].replace(/[^a-z0-9]/gi, '_').toLowerCase() : profId;
+            const filename = `nextdns_config_${profileName}_${profId}.json`;
+            const blob = new Blob([JSON.stringify(exportedConfig, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            setStatusReady();
+            status.innerText = "Config Exported Successfully!";
+            status.style.color = "#42b983";
+        } catch (err) {
+            setStatusError("Failed to export complete configuration.");
+        }
+    }
+
+    /**
+     * CONFIGURATION RESTORE IMPORTER
+     * Validates and imports full profile configurations, skipping duplicate cloud entries safely.
+     */
+    async function importProfileConfig(config) {
+        const profId = profSel.value;
+        if (!profId) {
+            setStatusError("Error: Select a profile first.");
+            return;
+        }
+
+        isImporting = true;
+        isAborted = false;
+        importLogs = [];
+        globalRateLimitLock = false;
+
+        logToggleBtn.style.display = "none";
+        logCopyBtn.style.display = "none";
+        logDisplayArea.style.display = "none";
+        logToggleBtn.innerText = "Show Log";
+        themeSync();
+
+        let totalAdded = 0;
+        let totalSkipped = 0;
+        let totalFailed = 0;
+
+        const categories = [
+            { key: 'denylist', type: 'denylist', endpoint: 'denylist' },
+            { key: 'allowlist', type: 'allowlist', endpoint: 'allowlist' },
+            { key: 'tlds', type: 'tld', endpoint: 'security/tlds' },
+            { key: 'blocklists', type: 'blocklists', endpoint: 'privacy/blocklists' },
+            { key: 'rewrites', type: 'rewrites', endpoint: 'rewrites' }
+        ];
+
+        try {
+            for (const cat of categories) {
+                if (isAborted) break;
+
+                const list = config[cat.key];
+                if (!Array.isArray(list) || list.length === 0) continue;
+
+                setStatusText(`Syncing ${cat.key}...`);
+                const existing = await getExisting(profId, cat.type);
+                const cacheMap = new Set();
+                for (let i = 0; i < existing.length; i++) {
+                    let item = existing[i];
+                    let key = cat.type === 'rewrites' ? `${item.name.toLowerCase().trim()}:::${item.content}` : item.id.toLowerCase().trim();
+                    cacheMap.add(key);
+                }
+
+                let toAdd = [];
+                for (let item of list) {
+                    if (cat.type === 'rewrites') {
+                        if (!item.name || !item.content) continue;
+                        let key = `${item.name.toLowerCase().trim()}:::${item.content}`;
+                        if (!cacheMap.has(key)) {
+                            toAdd.push({ domain: item.name, ip: item.content });
+                        } else {
+                            totalSkipped++;
+                            importLogs.push(`[SKIPPED (DUPLICATE)] Rewrite ${item.name} -> ${item.content}`);
+                        }
+                    } else {
+                        let itemVal = item.id || item;
+                        if (typeof itemVal !== 'string') continue;
+                        let lookupKey = itemVal.toLowerCase().trim();
+                        if (!cacheMap.has(lookupKey)) {
+                            toAdd.push({ id: itemVal });
+                        } else {
+                            totalSkipped++;
+                            importLogs.push(`[SKIPPED (DUPLICATE)] ${cat.key}: ${itemVal}`);
+                        }
+                    }
+                }
+
+                if (toAdd.length === 0) continue;
+
+                let endpointBase = `https://api.nextdns.io/profiles/${profId}/${cat.endpoint}`;
+
+                for (let i = 0; i < toAdd.length; i++) {
+                    if (isAborted) break;
+
+                    let item = toAdd[i];
+                    let label = cat.type === 'rewrites' ? item.domain : item.id;
+                    let targetUrl = endpointBase;
+                    let method = "POST";
+                    let payload = cat.type === 'rewrites' ? { name: item.domain, content: item.ip } : { id: item.id };
+
+                    if (!globalRateLimitLock) {
+                        setStatusText(`Importing ${cat.key}: (${i + 1}/${toAdd.length})\nProcessing [ ${label.substring(0, 22)} ]\nAdded: ${totalAdded} Skipped: ${totalSkipped} Failed: ${totalFailed}`);
+                    }
+
+                    try {
+                        await sendRequest(targetUrl, method, payload);
+                        if (!isAborted) {
+                            totalAdded++;
+                            importLogs.push(`[IMPORTED ${cat.key.toUpperCase()}] ${label}`);
+                        }
+                    } catch {
+                        totalFailed++;
+                        importLogs.push(`[FAILED ${cat.key.toUpperCase()} (API ERROR)] ${label}`);
+                    }
+
+                    if (!isAborted && i < toAdd.length - 1) {
+                        await new Promise(r => setTimeout(r, 200));
+                    }
+                }
+            }
+
+            isImporting = false;
+            if (isAborted) {
+                status.innerText = "Operation Cancelled";
+                status.style.color = "#ff6b6b";
+            } else {
+                status.style.color = "inherit";
+                status.innerHTML = `<span style="color: #42b983;">Imported: ${totalAdded}</span>  <span style="color: ${isDarkTheme ? "#8892b0" : "#666666"};">Skipped: ${totalSkipped}</span>  <span style="color: ${totalFailed === 0 ? (isDarkTheme ? "#8892b0" : "#666666") : "#ff6b6b"};">Failed: ${totalFailed}</span>`;
+
+                logDisplayArea.innerText = importLogs.join('\n');
+                logToggleBtn.style.display = "block";
+                logCopyBtn.style.display = "inline-flex";
+            }
+            setButtonsIdle();
+            fetchStats(profId);
+        } catch (err) {
+            isImporting = false;
+            setStatusError("Failed to import configuration fully.");
+            setButtonsIdle();
+        }
     }
 
     async function runImport(mode) {

@@ -1,6 +1,6 @@
 # Community Showcase & Configurations
 
-Welcome to the community configuration hub for **NextDNS Bulk Importer Pro**. This repository provides community-curated presets designed for direct compatibility with this script.
+Welcome to the community configuration hub for [**NextDNS Bulk Importer Pro**](https://github.com/PowerHubApp/NextDNS-Bulk-Importer-Pro). This repository provides community-curated presets designed for direct compatibility with this script.
 
 > [!WARNING]
 > These configurations are community-contributed. Always audit rules before bulk-importing to ensure they do not disrupt your specific network requirements.

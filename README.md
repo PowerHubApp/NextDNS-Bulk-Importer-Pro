@@ -7,7 +7,6 @@ NextDNS userscript bulk import automation designed for advanced NextDNS users. E
 > Use this script entirely at your own risk. Always back up your configurations or test on a secondary profile before importing large data.
 > This script is designed to automate bulk actions for your convenience, but you are entirely responsible for what you import into your profile.
 
----
 
 ## 📸 Screenshots
 
@@ -15,8 +14,6 @@ NextDNS userscript bulk import automation designed for advanced NextDNS users. E
 | :---: | :---: | :---: |
 | ![Screenshot 1](screenshots/1.png) | ![Screenshot 2](screenshots/2.png) | ![Screenshot 3](screenshots/3.png) 
 
-
----
 
 ## Features
 * **Bulk Add & Remove:** Bulk Add/Remove: TLDs, Blocklists, Denylists, Allowlists and Rewrites.
@@ -28,7 +25,6 @@ NextDNS userscript bulk import automation designed for advanced NextDNS users. E
 * **Rate-Limit Optimization:** Automatically pauses and resumes when it reaches NextDNS api limit.
 * **Logs:** Shows what was imported, skipped and failed.
 
----
 
 ## Compatible Userscript Manager
 First, add a userscript manager extension to your web browser if you don't have one already:
@@ -49,7 +45,6 @@ First, add a userscript manager extension to your web browser if you don't have 
 3. Choose what you want to import (Deny Lists, Allow Lists, TLDs, Rewrites, etc.).
 4. Paste your list, upload a text file, or enter a URL, then click **Bulk Add** or **Bulk Remove**.
 
----
 
 ## Coming Soon
 

@@ -1,6 +1,6 @@
 # NextDNS Bulk Importer Pro
 
-A simple, fast tool to easily add or remove multiple domains all at once.
+NextDNS userscript bulk import automation designed for advanced NextDNS users. Easily manage TLDs, blocklists, denylists, allowlists, and rewrites with a responsive, clean interface. Import and Export Config.
 
 > [!WARNING]
 > I am not responsible for what happens to your profile or NextDNS account. 

@@ -22,7 +22,7 @@ A simple, fast tool to easily add or remove multiple domains all at once.
 ## Features
 * **Bulk Add & Remove:** Bulk Add/Remove: TLDs, Blocklists, Denylists, Allowlists and Rewrites.
 * **Setup & Endpoints:** Shows Info for ID, DoH, DoT, DoH3, Anycast and Ultralow servers. *Fixing Link IP button*
-* **One-Click Complete Backup:** Generates a compiled backup .json file of your current profile settings. And.... IMPORT IT!!!!!!!
+* **One-Click Complete Backup:** Generates a compiled backup .json file of your current profile settings. Deploy the backup to your existing NextDNS Profile or a new NextDNS Profile. You can share the config with others.
 * **Hagezi’s AdBlock TLDs:** Supports Hagezi’s AdBlock TLDs. Select from the presets. NextDNS doesn’t support adding domains to TLDs, switch to denylist for that. *adding more soon*
 * **Skip Duplicates:** Automatically skips duplicate domains to save time.
 * **Supports AdBlock format:** Import your personal list in AdBlock format. Supports using *||example.com^*, *@@||example.com^*, *||example.com^$dnsrewrite=0.0.0.0 (IP only)*

@@ -15,7 +15,7 @@ All files must follow the formats parsed by the importer's internal `RULES` engi
 community/
 ├── tlds/       # .txt: TLD strings (e.g., ".xyz" | "*.xyz" | "xyz" | "||xyz^")
 ├── blocklist/  # .txt: List of valid NextDNS internal blocklist IDs
-├── denylist/   # .txt: Adblock syntax (e.g., "*.example.com" | "example.com" | "||example.com^")
-├── allowlist/  # .txt: Adblock syntax (e.g., "*.example.com" | "example.com" | "@@||example.com^")
-├── rewrites/   # .txt: dblock syntax (e.g., "0.0.0.0 example.com" | "example.com 0.0.0.0" | "||example.com^$dnsrewrite=0.0.0.0")
+├── denylist/   # .txt: (e.g., "*.example.com" | "example.com" | "||example.com^")
+├── allowlist/  # .txt: (e.g., "*.example.com" | "example.com" | "@@||example.com^")
+├── rewrites/   # .txt: (e.g., "0.0.0.0 example.com" | "example.com 0.0.0.0" | "||example.com^$dnsrewrite=0.0.0.0")
 └── config/     # .json: Full profile backup JSON Format (https://nextdns.github.io/api/#pagination)

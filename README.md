@@ -54,7 +54,7 @@ First, add a userscript manager extension to your web browser if you don't have 
 
 ## Coming Soon
 
-* NextDNS Bulk Importer Pro CLI tool for Linux
+* Faster API processing
 * Advanced Profile Editor
 * More TLDs presets
 * Denylist & Allowlist presets
